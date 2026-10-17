@@ -1,0 +1,150 @@
+/* ==========================================================================
+   Live prototype CTA — glassmorphic card
+   ========================================================================== */
+
+.proto-cta {
+  position: relative;
+  margin: clamp(1.75rem, 3.5vw, 2.75rem) 0;
+  padding: clamp(2rem, 5vw, 3.25rem) clamp(1.4rem, 4vw, 3rem);
+  border-radius: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.06) 0%,
+      rgba(255, 255, 255, 0.02) 45%,
+      rgba(15, 36, 32, 0.35) 100%
+    ),
+    color-mix(in srgb, var(--band, #0f2420) 88%, #000);
+  color: var(--band-ink, #eef3ef);
+  backdrop-filter: blur(18px) saturate(1.2);
+  -webkit-backdrop-filter: blur(18px) saturate(1.2);
+  overflow: hidden;
+  isolation: isolate;
+  text-align: center;
+  box-shadow:
+    0 28px 60px -32px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.proto-cta-glow {
+  position: absolute;
+  top: -30%;
+  left: 50%;
+  width: min(34rem, 90vw);
+  height: 18rem;
+  transform: translateX(-50%);
+  background: radial-gradient(
+    closest-side,
+    rgba(51, 71, 232, 0.35),
+    rgba(106, 36, 31, 0.18),
+    transparent 72%
+  );
+  filter: blur(8px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.proto-cta-inner {
+  position: relative;
+  z-index: 1;
+  max-width: 34rem;
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.proto-cta-eyebrow {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(238, 243, 239, 0.55);
+}
+
+.proto-cta-title {
+  margin: 0;
+  font-family: var(--display, Inter, sans-serif);
+  font-size: clamp(1.55rem, 3.4vw, 2.15rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  color: var(--band-ink, #eef3ef);
+}
+
+.proto-cta-copy {
+  margin: 0 0 0.55rem;
+  max-width: 28rem;
+  font-size: clamp(0.98rem, 1.5vw, 1.08rem);
+  line-height: 1.55;
+  color: rgba(238, 243, 239, 0.72);
+}
+
+.proto-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-top: 0.35rem;
+  padding: 0.95rem 1.55rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: linear-gradient(135deg, #3347e8 0%, #5b3fd4 55%, #6a241f 120%);
+  color: #ffffff;
+  font: 600 0.97rem / 1 var(--body, Inter, sans-serif);
+  text-decoration: none;
+  box-shadow:
+    0 14px 32px -14px rgba(51, 71, 232, 0.7),
+    0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+  transition:
+    transform 300ms cubic-bezier(0.22, 0.8, 0.2, 1),
+    box-shadow 300ms ease,
+    filter 300ms ease;
+}
+
+.proto-cta-btn svg {
+  width: 0.95rem;
+  height: 0.95rem;
+  transition: transform 300ms ease;
+}
+
+.proto-cta-btn:hover {
+  transform: scale(1.04) translateY(-1px);
+  box-shadow:
+    0 18px 40px -12px rgba(51, 71, 232, 0.85),
+    0 0 28px rgba(91, 63, 212, 0.35);
+  filter: brightness(1.05);
+}
+
+.proto-cta-btn:hover svg {
+  transform: translate(2px, -2px);
+}
+
+.proto-cta-btn:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 4px;
+}
+
+@media (max-width: 40rem) {
+  .proto-cta {
+    padding: 1.75rem 1.15rem 1.85rem;
+  }
+
+  .proto-cta-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .proto-cta-btn,
+  .proto-cta-btn svg {
+    transition-duration: 1ms;
+  }
+
+  .proto-cta-btn:hover {
+    transform: none;
+  }
+}

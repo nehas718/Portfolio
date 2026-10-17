@@ -1,0 +1,11 @@
+{
+  "title": "Neha Shababudeen — Product & Technology",
+  "description": "Portfolio of Neha Shababudeen: product and technology, from user research and flows to working code.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}

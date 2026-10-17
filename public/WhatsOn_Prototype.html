@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What's On – Demo</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Inter',sans-serif;background:#0f0f0f;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px;}
+.label{color:rgba(255,255,255,0.3);font-size:11px;letter-spacing:3px;text-transform:uppercase;font-weight:600;margin-bottom:18px;}
+
+/* Phone */
+.phone{width:375px;height:812px;background:#f7f7f8;border-radius:50px;overflow:hidden;position:relative;display:flex;flex-direction:column;box-shadow:0 0 0 1px #2a2a2a,0 0 0 3px #1a1a1a,0 50px 130px rgba(0,0,0,0.85);}
+.sb{height:50px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 26px 10px;font-size:12px;font-weight:700;color:white;flex-shrink:0;position:relative;z-index:30;background:#801818;}
+.notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:120px;height:34px;background:#111;border-radius:0 0 20px 20px;}
+.wrap{flex:1;position:relative;overflow:hidden;}
+.screen{position:absolute;inset:0;display:none;flex-direction:column;background:#f7f7f8;}
+.screen.on{display:flex;}
+.scr{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.scr::-webkit-scrollbar{display:none;}
+
+:root{--r:#801818;--r2:#a02020;--w:#fff;--bg:#f7f7f8;--t:#111;--m:#888;--b:#e8e8e8;}
+
+/* ── Header ── */
+.hdr{background:var(--r);flex-shrink:0;padding:10px 18px 14px;}
+.hdr-r1{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.hdr-r2{display:flex;align-items:center;justify-content:space-between;}
+.loc-wrap{position:relative;}
+.loc-btn{display:flex;align-items:center;gap:4px;color:rgba(255,255,255,0.6);font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;padding:3px 0;}
+.loc-btn svg{width:9px;height:9px;transition:transform .2s;}
+.loc-btn.open svg{transform:rotate(180deg);}
+.loc-menu{position:absolute;top:calc(100% + 8px);left:-6px;background:white;border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,0.22);z-index:200;min-width:200px;padding:5px;opacity:0;transform:translateY(-6px) scale(.97);pointer-events:none;transition:all .2s;}
+.loc-menu.open{opacity:1;transform:translateY(0) scale(1);pointer-events:auto;}
+.loc-opt{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:9px;font-size:13px;font-weight:600;color:#111;cursor:pointer;transition:background .15s;}
+.loc-opt:hover{background:#f5f5f5;}
+.loc-opt.active{color:var(--r);}
+.loc-opt .ck{font-size:13px;opacity:0;}
+.loc-opt.active .ck{opacity:1;}
+.logo{font-size:21px;font-weight:900;color:white;letter-spacing:-0.7px;}
+.logo em{color:rgba(255,255,255,0.3);font-style:normal;font-weight:300;}
+.hbtn{width:34px;height:34px;background:rgba(255,255,255,0.13);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;flex-shrink:0;}
+.hsearch{margin-top:10px;background:rgba(0,0,0,0.18);border-radius:11px;padding:9px 14px;display:flex;align-items:center;gap:8px;color:rgba(255,255,255,0.45);font-size:13px;cursor:text;}
+
+/* ── Chips ── */
+.chips-wrap{background:white;border-bottom:1px solid var(--b);flex-shrink:0;}
+.chips{display:flex;gap:6px;padding:10px 14px 0;overflow-x:auto;}
+.chips::-webkit-scrollbar{display:none;}
+.chip{padding:6px 14px;border-radius:100px;font-size:12px;font-weight:700;white-space:nowrap;cursor:pointer;border:1.5px solid #ddd;background:white;color:#555;transition:all .2s;}
+.chip.on{background:var(--r);color:white;border-color:var(--r);}
+.fbar{display:flex;align-items:center;gap:7px;padding:8px 14px 10px;overflow-x:auto;}
+.fbar::-webkit-scrollbar{display:none;}
+.fbtn{display:flex;align-items:center;gap:5px;padding:6px 13px;border-radius:100px;font-size:12px;font-weight:700;cursor:pointer;background:#f2f2f2;color:#444;border:1.5px solid transparent;white-space:nowrap;flex-shrink:0;}
+.fbtn.on{background:#fff0f0;color:var(--r);border-color:var(--r);}
+.ftag{display:flex;align-items:center;gap:4px;padding:5px 11px;border-radius:100px;font-size:11px;font-weight:700;background:var(--r);color:white;white-space:nowrap;flex-shrink:0;cursor:pointer;}
+
+/* ── Carousel ── */
+.car{position:relative;height:198px;overflow:hidden;flex-shrink:0;}
+.cslide{position:absolute;inset:0;opacity:0;transition:opacity .65s ease;pointer-events:none;cursor:pointer;display:flex;align-items:flex-end;}
+.cslide.on{opacity:1;pointer-events:auto;}
+.cbg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:86px;}
+.covl{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.88) 0%,rgba(0,0,0,.05) 55%,transparent 100%);}
+.cbadge{position:absolute;top:13px;left:13px;background:rgba(255,255,255,.15);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.2);color:white;font-size:10px;font-weight:800;padding:4px 11px;border-radius:100px;letter-spacing:1px;}
+.cbody{position:relative;z-index:2;padding:14px 16px;width:100%;}
+.ccat{font-size:10px;font-weight:700;color:rgba(255,255,255,.5);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:3px;}
+.ctitle{font-size:17px;font-weight:800;color:white;letter-spacing:-.3px;margin-bottom:7px;}
+.cmeta{display:flex;align-items:center;gap:10px;}
+.cmeta span{font-size:12px;color:rgba(255,255,255,.6);font-weight:500;}
+.cprice{margin-left:auto;background:var(--r);color:white;font-size:11px;font-weight:800;padding:4px 11px;border-radius:100px;}
+.cdots{display:flex;justify-content:center;gap:5px;padding:8px 0 2px;background:white;}
+.dot{height:3px;border-radius:2px;background:#ddd;transition:all .4s;width:14px;}
+.dot.on{background:var(--r);width:22px;}
+
+/* ── Section heads ── */
+.sh{font-size:17px;font-weight:800;color:var(--t);padding:14px 16px 10px;letter-spacing:-.3px;}
+.shr{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;}
+.shr .tt{font-size:17px;font-weight:800;color:var(--t);letter-spacing:-.3px;}
+.shr .aa{font-size:13px;font-weight:600;color:var(--r);cursor:pointer;}
+
+/* ── Event Cards ── */
+.elist{padding:0 14px 16px;display:flex;flex-direction:column;gap:10px;}
+.ecard{background:white;border-radius:16px;overflow:hidden;display:flex;box-shadow:0 2px 12px rgba(0,0,0,.06);cursor:pointer;border:1px solid rgba(0,0,0,.03);transition:transform .15s;}
+.ecard:active{transform:scale(.98);}
+.eacc{width:4px;flex-shrink:0;}
+.ethumb{width:72px;height:72px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:28px;margin:13px 0 13px 12px;border-radius:13px;}
+.ebody{flex:1;padding:13px 13px 13px 11px;min-width:0;}
+.etag{font-size:10px;font-weight:700;color:var(--r);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:3px;}
+.etitle{font-size:14px;font-weight:700;color:var(--t);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.2px;margin-bottom:3px;}
+.emeta{font-size:12px;color:var(--m);font-weight:500;margin-bottom:6px;}
+.efoot{display:flex;align-items:center;justify-content:space-between;}
+.eprice{font-size:14px;font-weight:800;color:var(--t);}
+.egoing{font-size:11px;font-weight:600;color:#666;background:#f4f4f4;padding:3px 9px;border-radius:100px;}
+
+/* ── Event Detail ── */
+.dhero{height:220px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:86px;position:relative;}
+.dback,.dsave{position:absolute;top:13px;width:36px;height:36px;background:rgba(0,0,0,.3);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;cursor:pointer;}
+.dback{left:13px;font-size:19px;font-weight:700;}
+.dsave{right:13px;font-size:16px;}
+.dcard{margin:0 14px;margin-top:-24px;background:white;border-radius:20px;padding:18px;box-shadow:0 6px 28px rgba(0,0,0,.1);position:relative;z-index:2;}
+.dtitle{font-size:21px;font-weight:900;color:var(--t);letter-spacing:-.5px;margin-bottom:14px;}
+.dinfo{display:flex;flex-direction:column;gap:9px;}
+.drow{display:flex;align-items:center;gap:10px;}
+.dico{width:32px;height:32px;border-radius:9px;background:#f4f4f4;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.dtext{font-size:13px;color:#333;font-weight:500;line-height:1.3;}
+.dtext b{color:var(--t);font-weight:700;}
+.ddiv{height:1px;background:#f0f0f0;margin:14px 0;}
+.ddesc{font-size:13px;color:#555;line-height:1.7;}
+.davrow{display:flex;align-items:center;gap:9px;margin-top:13px;}
+.avs{display:flex;}
+.av{width:26px;height:26px;border-radius:50%;border:2px solid white;margin-left:-8px;font-size:11px;display:flex;align-items:center;justify-content:center;}
+.av:first-child{margin-left:0;}
+.dcnt{font-size:12px;color:var(--m);font-weight:600;}
+.tbtn{margin:14px 14px 0;padding:17px;background:var(--r);color:white;border:none;border-radius:16px;font-size:15px;font-weight:800;cursor:pointer;width:calc(100% - 28px);font-family:'Inter',sans-serif;letter-spacing:-.2px;transition:background .2s,transform .1s;}
+.tbtn:active{transform:scale(.98);}
+.tbtn.going{background:#1a7f3c;}
+.cancrsvp{text-align:center;padding:10px;font-size:12px;color:var(--m);cursor:pointer;display:none;}
+.cancrsvp.show{display:block;}
+
+/* ── Map ── */
+#map-screen{background:#111;}
+.map-hdr{background:var(--r);padding:10px 18px 14px;flex-shrink:0;}
+.map-hdr-row{display:flex;align-items:center;justify-content:space-between;}
+#leaflet-map{flex:1;width:100%;}
+.map-fab{position:absolute;bottom:84px;right:14px;z-index:400;background:white;border-radius:14px;padding:10px 14px;box-shadow:0 4px 20px rgba(0,0,0,.2);font-size:12px;font-weight:700;color:var(--r);cursor:pointer;display:flex;align-items:center;gap:6px;}
+/* Leaflet popup overrides */
+.leaflet-popup-content-wrapper{padding:0!important;border-radius:14px!important;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,.22)!important;border:none!important;}
+.leaflet-popup-content{margin:0!important;width:210px!important;}
+.leaflet-popup-tip{background:white!important;}
+.leaflet-container{font-family:'Inter',sans-serif!important;}
+.leaflet-control-zoom{border:none!important;box-shadow:0 4px 14px rgba(0,0,0,.2)!important;}
+.leaflet-control-zoom a{font-family:'Inter',sans-serif!important;font-weight:700!important;color:var(--r)!important;}
+
+/* ── Login ── */
+.lhdr{background:var(--r);padding:12px 18px 28px;flex-shrink:0;}
+.lback{width:34px;height:34px;background:rgba(255,255,255,.15);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:19px;cursor:pointer;margin-bottom:14px;}
+.ltitle{font-size:24px;font-weight:900;color:white;letter-spacing:-.6px;line-height:1.2;}
+.lsub{font-size:13px;color:rgba(255,255,255,.55);margin-top:4px;}
+.lbody{padding:20px 18px;flex:1;overflow-y:auto;}
+.lbody::-webkit-scrollbar{display:none;}
+.lg{margin-bottom:13px;}
+.ll{font-size:11px;font-weight:700;color:#666;letter-spacing:.4px;text-transform:uppercase;margin-bottom:5px;display:block;}
+.li{width:100%;padding:13px 15px;border:1.5px solid var(--b);border-radius:13px;font-size:15px;color:var(--t);background:white;outline:none;font-family:'Inter',sans-serif;font-weight:500;transition:border-color .2s;}
+.li:focus{border-color:var(--r);box-shadow:0 0 0 3px rgba(128,24,24,.08);}
+.lbtnmain{width:100%;padding:16px;background:var(--r);color:white;border:none;border-radius:16px;font-size:15px;font-weight:800;cursor:pointer;font-family:'Inter',sans-serif;margin-top:6px;}
+.lterms{font-size:11px;color:var(--m);text-align:center;margin-top:12px;line-height:1.6;}
+.ldivider{display:flex;align-items:center;gap:10px;margin:18px 0 14px;color:var(--m);font-size:12px;font-weight:600;}
+.ldivider::before,.ldivider::after{content:'';flex:1;height:1px;background:var(--b);}
+.demo-label-text{font-size:11px;font-weight:700;color:var(--m);letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px;}
+.demo-card{display:flex;align-items:center;gap:12px;background:white;border:1.5px solid var(--b);border-radius:14px;padding:13px 14px;cursor:pointer;margin-bottom:9px;transition:border-color .2s,box-shadow .2s;}
+.demo-card:hover{border-color:var(--r);box-shadow:0 4px 14px rgba(128,24,24,.1);}
+.demo-avatar{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.demo-info{flex:1;min-width:0;}
+.demo-name{font-size:14px;font-weight:800;color:var(--t);}
+.demo-email{font-size:12px;color:var(--m);font-weight:500;margin-top:1px;}
+.demo-role{font-size:10px;font-weight:700;padding:3px 9px;border-radius:100px;margin-top:4px;display:inline-block;}
+.role-user{background:#e8f0fe;color:#1a56db;}
+.role-org{background:#fff0f0;color:var(--r);}
+
+/* ── Saved ── */
+.saved-empty{padding:56px 28px;text-align:center;}
+.saved-empty .eico{font-size:52px;margin-bottom:14px;}
+.saved-empty .etit{font-size:18px;font-weight:800;color:#333;margin-bottom:8px;}
+.saved-empty .esub{font-size:13px;color:var(--m);line-height:1.6;margin-bottom:22px;}
+.saved-empty .ebtn{background:var(--r);color:white;padding:13px 26px;border-radius:13px;font-size:14px;font-weight:700;cursor:pointer;border:none;font-family:'Inter',sans-serif;}
+
+/* ── Profile ── */
+.phdr{background:var(--r);padding:12px 18px 36px;flex-shrink:0;}
+.phdr-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.plogo{font-size:18px;font-weight:900;color:white;letter-spacing:-.5px;}
+.plogo em{color:rgba(255,255,255,.3);font-style:normal;}
+.pgear{width:32px;height:32px;background:rgba(255,255,255,.14);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;}
+.pav-wrap{display:flex;flex-direction:column;align-items:center;}
+.pav{width:68px;height:68px;border-radius:50%;background:rgba(255,255,255,.2);border:3px solid rgba(255,255,255,.35);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:900;color:white;margin-bottom:9px;}
+.pname{font-size:19px;font-weight:800;color:white;letter-spacing:-.4px;}
+.pemail{font-size:12px;color:rgba(255,255,255,.5);margin-top:2px;}
+.pcard{margin:0 14px;margin-top:-22px;background:white;border-radius:18px;padding:16px;box-shadow:0 6px 28px rgba(0,0,0,.1);position:relative;z-index:2;display:flex;justify-content:space-around;}
+.pstat{text-align:center;}
+.pstat-n{font-size:22px;font-weight:900;color:var(--t);}
+.pstat-l{font-size:10px;color:var(--m);font-weight:600;margin-top:2px;}
+.pstat-div{width:1px;background:var(--b);}
+.psec{margin:13px 14px 0;background:white;border-radius:16px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.05);}
+.psec-title{font-size:10px;font-weight:700;color:var(--m);letter-spacing:1px;text-transform:uppercase;padding:12px 15px 7px;}
+.prow{display:flex;align-items:center;gap:11px;padding:12px 15px;border-bottom:1px solid #f5f5f5;cursor:pointer;}
+.prow:last-child{border-bottom:none;}
+.prow-ico{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.prow-body{flex:1;}
+.prow-title{font-size:13px;font-weight:600;color:var(--t);}
+.prow-sub{font-size:11px;color:var(--m);margin-top:1px;}
+.prow-arr{color:#ccc;font-size:17px;}
+.tog{width:40px;height:24px;background:#ddd;border-radius:12px;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0;}
+.tog.on{background:var(--r);}
+.tog::after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;background:white;border-radius:50%;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2);}
+.tog.on::after{transform:translateX(16px);}
+.guest-body{padding:44px 28px;text-align:center;}
+.guest-ico{font-size:54px;margin-bottom:14px;}
+.guest-title{font-size:20px;font-weight:900;color:var(--t);margin-bottom:7px;letter-spacing:-.4px;}
+.guest-sub{font-size:13px;color:var(--m);line-height:1.6;margin-bottom:24px;}
+.signin-btn{background:var(--r);color:white;padding:16px;border-radius:16px;font-size:15px;font-weight:800;cursor:pointer;border:none;font-family:'Inter',sans-serif;width:100%;}
+
+/* ── Filter Sheet ── */
+.overlay{position:absolute;inset:0;background:rgba(0,0,0,.5);z-index:300;opacity:0;pointer-events:none;transition:opacity .3s;}
+.overlay.show{opacity:1;pointer-events:auto;}
+.sheet{position:absolute;bottom:0;left:0;right:0;background:white;border-radius:22px 22px 0 0;z-index:301;transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);max-height:78%;overflow-y:auto;padding-bottom:20px;}
+.sheet::-webkit-scrollbar{display:none;}
+.sheet.show{transform:translateY(0);}
+.shandle{width:34px;height:4px;background:#e0e0e0;border-radius:2px;margin:11px auto 0;}
+.stitle{font-size:17px;font-weight:900;color:var(--t);padding:14px 18px 6px;letter-spacing:-.4px;}
+.fgwrap{padding:0 18px;}
+.fglabel{font-size:11px;font-weight:700;color:var(--m);letter-spacing:.5px;text-transform:uppercase;margin:13px 0 8px;}
+.forow{display:flex;flex-wrap:wrap;gap:7px;}
+.fo{padding:7px 14px;border-radius:100px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid var(--b);background:white;color:#444;transition:all .2s;}
+.fo.on{background:var(--r);color:white;border-color:var(--r);}
+.sdiv{height:1px;background:var(--b);margin:12px 0;}
+.apply-btn{margin:14px 18px 0;width:calc(100% - 36px);padding:15px;background:var(--r);color:white;border:none;border-radius:14px;font-size:15px;font-weight:800;cursor:pointer;font-family:'Inter',sans-serif;}
+.reset-link{display:block;text-align:center;padding:11px;font-size:13px;font-weight:600;color:var(--m);cursor:pointer;}
+
+/* ── Explore ── */
+.cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px;}
+.ctile{border-radius:18px;padding:18px 14px;color:white;cursor:pointer;position:relative;overflow:hidden;min-height:105px;display:flex;flex-direction:column;justify-content:flex-end;transition:transform .15s;}
+.ctile:active{transform:scale(.97);}
+.ctile::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.35) 0%,transparent 55%);}
+.ctem{font-size:38px;position:absolute;top:13px;right:12px;opacity:.85;}
+.ctn{font-size:14px;font-weight:800;position:relative;z-index:1;letter-spacing:-.2px;}
+.ctc{font-size:11px;font-weight:600;opacity:.7;position:relative;z-index:1;margin-top:2px;}
+.loc-list2{padding:0 14px;display:flex;flex-direction:column;gap:8px;padding-bottom:18px;}
+.lcard2{background:white;border-radius:14px;padding:13px 15px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 10px rgba(0,0,0,.05);cursor:pointer;}
+.lico2{font-size:26px;width:40px;text-align:center;}
+.ln2{font-size:14px;font-weight:700;color:var(--t);}
+.ls2{font-size:12px;color:var(--m);font-weight:500;margin-top:1px;}
+.larr2{margin-left:auto;color:#ccc;font-size:17px;}
+
+/* ── Bottom Nav ── */
+.bnav{height:72px;background:white;border-top:1px solid rgba(0,0,0,.07);display:flex;flex-shrink:0;padding-bottom:6px;}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:#bbb;cursor:pointer;font-size:9px;font-weight:700;letter-spacing:.2px;transition:color .2s;padding-top:8px;position:relative;}
+.ni.on{color:var(--r);}
+.ni svg{width:20px;height:20px;}
+.nidot{width:4px;height:4px;border-radius:50%;background:transparent;margin-top:-1px;transition:background .2s;}
+.ni.on .nidot{background:var(--r);}
+.nibadge{position:absolute;top:5px;right:10px;width:8px;height:8px;background:var(--r);border-radius:50%;border:2px solid white;display:none;}
+.nibadge.show{display:block;}
+
+/* ── Admin ── */
+.ahdr{background:var(--r);padding:14px 18px 20px;flex-shrink:0;}
+.ahdr-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.agreet{color:rgba(255,255,255,.5);font-size:11px;font-weight:700;letter-spacing:.5px;}
+.aname{color:white;font-size:19px;font-weight:900;letter-spacing:-.4px;margin-top:2px;}
+.aav{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:17px;border:2px solid rgba(255,255,255,.3);}
+.atag{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.8);font-size:10px;font-weight:700;padding:4px 11px;border-radius:100px;letter-spacing:.5px;}
+.astats{display:flex;gap:10px;background:rgba(0,0,0,.15);border-radius:14px;padding:13px;margin-top:13px;}
+.astat{flex:1;text-align:center;}
+.astatn{font-size:21px;font-weight:900;color:white;}
+.astatl{font-size:10px;color:rgba(255,255,255,.5);font-weight:600;margin-top:2px;text-transform:uppercase;letter-spacing:.5px;}
+.astatdiv{width:1px;background:rgba(255,255,255,.15);}
+.qarow{display:flex;gap:9px;padding:14px;}
+.qa{flex:1;border-radius:16px;padding:14px 8px;text-align:center;cursor:pointer;transition:transform .15s;}
+.qa:active{transform:scale(.96);}
+.qaico{font-size:22px;margin-bottom:5px;}
+.qalbl{font-size:10px;font-weight:700;}
+.qar{background:var(--r);color:white;}
+.qao{background:white;color:var(--r);border:1.5px solid var(--r);}
+.qag{background:white;color:#555;border:1.5px solid var(--b);}
+.aev{display:flex;align-items:center;gap:11px;padding:13px 16px;border-bottom:1px solid #f3f3f3;background:white;}
+.aev-thumb{width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;}
+.aev-body{flex:1;min-width:0;}
+.aev-title{font-size:13px;font-weight:700;color:var(--t);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.aev-sub{font-size:11px;color:var(--m);font-weight:500;margin-top:2px;}
+.stb{font-size:10px;padding:3px 9px;border-radius:100px;font-weight:800;white-space:nowrap;letter-spacing:.5px;}
+.stlive{background:#e6f9ec;color:#1a7f3c;}
+.stdraft{background:#fff8e1;color:#b45309;}
+.stpast{background:#f3f3f3;color:#888;}
+.fwrap{padding:16px;}
+.fg2{margin-bottom:13px;}
+.fl2{font-size:11px;font-weight:700;color:#555;margin-bottom:5px;display:block;letter-spacing:.3px;text-transform:uppercase;}
+.fi2,.fs2,.fta2{width:100%;padding:12px 14px;border:1.5px solid var(--b);border-radius:12px;font-size:14px;color:var(--t);background:white;outline:none;font-family:'Inter',sans-serif;font-weight:500;transition:border-color .2s;-webkit-appearance:none;}
+.fi2:focus,.fs2:focus,.fta2:focus{border-color:var(--r);}
+.fta2{height:80px;resize:none;}
+.frow2{display:flex;gap:9px;}
+.frow2 .fg2{flex:1;}
+.subbtn{width:100%;padding:16px;background:var(--r);color:white;border:none;border-radius:15px;font-size:15px;font-weight:800;cursor:pointer;font-family:'Inter',sans-serif;}
+
+/* ── Toast ── */
+.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(16px);background:rgba(17,17,17,.93);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);color:white;padding:11px 20px;border-radius:100px;font-size:13px;font-weight:600;white-space:nowrap;opacity:0;transition:all .3s;z-index:9999;pointer-events:none;border:1px solid rgba(255,255,255,.1);}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+<div class="label">What's On — Interactive Demo</div>
+<div class="phone">
+  <div class="sb"><span>9:41</span><div class="notch"></div><span>5G 🔋</span></div>
+  <div class="wrap">
+
+    <!-- HOME -->
+    <div class="screen on" id="home">
+      <div class="hdr">
+        <div class="hdr-r1">
+          <div class="loc-wrap">
+            <div class="loc-btn" id="loc-btn" onclick="toggleLoc()">
+              📍 <span id="cur-city">Dubai, UAE</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+            <div class="loc-menu" id="loc-menu">
+              <div class="loc-opt active" id="lo-dxb" onclick="setCity('Dubai, UAE','lo-dxb')">🏙 Dubai <span class="ck">✓</span></div>
+              <div class="loc-opt" id="lo-adh" onclick="setCity('Abu Dhabi','lo-adh')">🌃 Abu Dhabi <span class="ck">✓</span></div>
+              <div class="loc-opt" id="lo-shj" onclick="setCity('Sharjah','lo-shj')">🌆 Sharjah <span class="ck">✓</span></div>
+              <div class="loc-opt" id="lo-cur" onclick="setCity('Near Me 📡','lo-cur')">📡 Use My Location <span class="ck">✓</span></div>
+            </div>
+          </div>
+          <div class="hbtn" onclick="toast('No new notifications')">🔔</div>
+        </div>
+        <div class="hdr-r2">
+          <div class="logo">What's<em> On</em></div>
+        </div>
+        <div class="hsearch" onclick="toast('Search coming soon!')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.45)" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          Search events, venues…
+        </div>
+      </div>
+      <div class="chips-wrap">
+        <div class="chips" id="home-chips">
+          <div class="chip on" onclick="fCat(this,'All')">All</div>
+          <div class="chip" onclick="fCat(this,'Music')">🎵 Music</div>
+          <div class="chip" onclick="fCat(this,'Food')">🍽 Food</div>
+          <div class="chip" onclick="fCat(this,'Sports')">⚽ Sports</div>
+          <div class="chip" onclick="fCat(this,'Art')">🎨 Art</div>
+          <div class="chip" onclick="fCat(this,'Tech')">💻 Tech</div>
+          <div class="chip" onclick="fCat(this,'Nightlife')">🎉 Nightlife</div>
+        </div>
+        <div class="fbar">
+          <div class="fbtn" id="fmainbtn" onclick="openFilter()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+            Filters
+          </div>
+          <div id="active-filters"></div>
+        </div>
+      </div>
+      <div class="scr">
+        <div class="car" id="carousel"></div>
+        <div class="cdots" id="cdots"></div>
+        <div class="shr" style="padding-top:14px"><div class="tt">🗓 Upcoming Events</div><div class="aa" onclick="go('explore')">See all</div></div>
+        <div class="elist" id="elist"></div>
+      </div>
+      <div class="bnav" id="bnav-home">
+        <div class="ni on" onclick="cNav(this,'home')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Home<div class="nidot"></div></div>
+        <div class="ni" onclick="cNav(this,'explore')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>Explore<div class="nidot"></div></div>
+        <div class="ni" onclick="cNav(this,'map-screen')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>Map<div class="nidot"></div></div>
+        <div class="ni" onclick="cNav(this,'saved')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>Saved<div class="nidot"></div><div class="nibadge" id="saved-badge"></div></div>
+        <div class="ni" onclick="cNav(this,'profile')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile<div class="nidot"></div></div>
+      </div>
+    </div>
+
+    <!-- EXPLORE -->
+    <div class="screen" id="explore">
+      <div class="hdr">
+        <div class="hdr-r1"><div class="logo">Explore</div><div class="hbtn" onclick="cNav(null,'map-screen')">🗺</div></div>
+        <div class="hsearch">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.45)" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          Find events anywhere in UAE…
+        </div>
+      </div>
+      <div class="scr">
+        <div class="sh">Browse by Category</div>
+        <div class="cat-grid">
+          <div class="ctile" style="background:linear-gradient(135deg,#b34040,#801818)" onclick="fFromEx('Music')"><div class="ctem">🎵</div><div class="ctn">Music</div><div class="ctc">14 events</div></div>
+          <div class="ctile" style="background:linear-gradient(135deg,#d97706,#92400e)" onclick="fFromEx('Food')"><div class="ctem">🍽</div><div class="ctn">Food & Drink</div><div class="ctc">8 events</div></div>
+          <div class="ctile" style="background:linear-gradient(135deg,#16a34a,#14532d)" onclick="fFromEx('Sports')"><div class="ctem">⚽</div><div class="ctn">Sports</div><div class="ctc">11 events</div></div>
+          <div class="ctile" style="background:linear-gradient(135deg,#7c3aed,#4c1d95)" onclick="fFromEx('Art')"><div class="ctem">🎨</div><div class="ctn">Art & Culture</div><div class="ctc">6 events</div></div>
+          <div class="ctile" style="background:linear-gradient(135deg,#2563eb,#1e3a8a)" onclick="fFromEx('Tech')"><div class="ctem">💻</div><div class="ctn">Tech</div><div class="ctc">5 events</div></div>
+          <div class="ctile" style="background:linear-gradient(135deg,#db2777,#831843)" onclick="fFromEx('Nightlife')"><div class="ctem">🎉</div><div class="ctn">Nightlife</div><div class="ctc">9 events</div></div>
+        </div>
+        <div class="sh">📍 Browse by City</div>
+        <div class="loc-list2">
+          <div class="lcard2"><div class="lico2">🏙</div><div><div class="ln2">Dubai</div><div class="ls2">32 events this week</div></div><div class="larr2">›</div></div>
+          <div class="lcard2"><div class="lico2">🌃</div><div><div class="ln2">Abu Dhabi</div><div class="ls2">18 events this week</div></div><div class="larr2">›</div></div>
+          <div class="lcard2"><div class="lico2">🌆</div><div><div class="ln2">Sharjah</div><div class="ls2">9 events this week</div></div><div class="larr2">›</div></div>
+        </div>
+      </div>
+      <div class="bnav">
+        <div class="ni" onclick="cNav(this,'home')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Home<div class="nidot"></div></div>
+        <div class="ni on" onclick="cNav(this,'explore')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>Explore<div class="nidot"></div></div>
+        <div class="ni" onclick="cNav(this,'map-screen')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>Map<div class="nidot"></div></div>
+        <div class="ni" onclick="cNav(this,'saved')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>Saved<div class="nidot"></div></div>
+        <div class="ni" onclick="cNav(this,'profile')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile<div class="nidot"></div></div>
+      </div>
+    </div>
+
+    <!-- MAP -->
+    <div class="screen" id="map-screen">
+      <div class="map-hdr">
+        <div class="map-hdr-row">
+          <div class="logo">Event<em> Map</em></div>
+          <div style="display:flex;gap:8px">
+            <div class="hbtn" onclick="nearMe()">📍</div>
+            <div class="hbtn" onclick="toast('Map layers coming soon!')">⚙️</div>
+          </div>
+        </div>
+      </div>
+      <div id="leaflet-map"></div>
+      <div class="map-fab" onclick="nearMe()">📍 Near Me</div>
+      <div class="bnav">
+        <div class="ni" onclick="cNav(this,'home')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Home<div class="nidot"></div></div>
+        <div class="ni" onclick="cNav(this,'explore')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>Explore<div class="nidot"></div></div>
+        <div class="ni on" onclick="cNav(this,'map-screen')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>Map<div class="nidot"></div></div>
+        <div class="ni" onclick="cNav(this,'saved')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>Saved<div class="nidot"></div></div>
+        <div class="ni" onclick="cNav(this,'profile')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile<div class="nidot"></div></div>
+      </div>
+    </div>
+
+    <!-- EVENT DETAIL -->
+    <div class="screen" id="event-detail">
+      <div class="dhero" id="dhero"></div>
+      <div class="scr">
+        <div class="dcard">
+          <div class="dtitle" id="dtitle"></div>
+          <div class="dinfo">
+            <div class="drow"><div class="dico">📅</div><div class="dtext"><b id="ddate"></b></div></div>
+            <div class="drow"><div class="dico">🕐</div><div class="dtext" id="dtime"></div></div>
+            <div class="drow"><div class="dico">📍</div><div class="dtext" id="dloc"></div></div>
+            <div class="drow"><div class="dico">🎟</div><div class="dtext"><b id="dprice" style="color:var(--r)"></b></div></div>
+            <div class="drow"><div class="dico">🔞</div><div class="dtext" id="dage"></div></div>
+          </div>
+          <div class="ddiv"></div>
+          <div class="ddesc" id="ddesc"></div>
+          <div class="davrow">
+            <div class="avs">
+              <div class="av" style="background:#ffcdd2">😊</div>
+              <div class="av" style="background:#c8e6c9">😎</div>
+              <div class="av" style="background:#bbdefb">🙂</div>
+              <div class="av" style="background:#e1bee7">😁</div>
+            </div>
+            <div class="dcnt" id="dcnt"></div>
+          </div>
+        </div>
+        <button class="tbtn" id="tbtn" onclick="handleTicket()"></button>
+        <div class="cancrsvp" id="cancrsvp" onclick="cancelR()">Cancel registration</div>
+        <div style="height:20px"></div>
+      </div>
+    </div>
+
+    <!-- LOGIN -->
+    <div class="screen" id="login">
+      <div class="lhdr">
+        <div class="lback" onclick="goBack()">‹</div>
+        <div class="ltitle">Welcome to<br>What's On</div>
+        <div class="lsub">Sign in to RSVP and save events</div>
+      </div>
+      <div class="lbody">
+        <div class="lg"><label class="ll">Your Name</label><input class="li" id="l-name" placeholder="e.g. Sara Al Mazrouei"/></div>
+        <div class="lg"><label class="ll">Email Address</label><input class="li" id="l-email" type="email" placeholder="your@email.ae"/></div>
+        <div class="lg"><label class="ll">Phone (optional)</label><input class="li" id="l-phone" type="tel" placeholder="+971 50 000 0000"/></div>
+        <button class="lbtnmain" onclick="doLogin()">Continue →</button>
+        <div class="lterms">By continuing you agree to our <u>Terms</u> and <u>Privacy Policy</u></div>
+        <div class="ldivider">or try a demo account</div>
+        <div class="demo-label-text">Demo Accounts</div>
+        <div class="demo-card" onclick="loginAs('user')">
+          <div class="demo-avatar" style="background:#e8f0fe">👩🏻</div>
+          <div class="demo-info">
+            <div class="demo-name">Sara Al Mazrouei</div>
+            <div class="demo-email">sara@whats-on.ae</div>
+            <div class="demo-role role-user">Regular User</div>
+          </div>
+          <div style="color:#ccc;font-size:20px">›</div>
+        </div>
+        <div class="demo-card" onclick="loginAs('org')">
+          <div class="demo-avatar" style="background:#fff0f0">🏢</div>
+          <div class="demo-info">
+            <div class="demo-name">Dubai Events Co.</div>
+            <div class="demo-email">events@dubaieco.ae</div>
+            <div class="demo-role role-org">Event Organizer</div>
+          </div>
+          <div style="color:#ccc;font-size:20px">›</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SAVED -->
+    <div class="screen" id="saved">
+      <div class="hdr">
+        <div class="hdr-r1"><div class="logo">Saved<em> Events</em></div><div class="hbtn">🔔</div></div>
+      </div>
+      <div class="scr" id="saved-content"></div>
+      <div class="bnav">
+        <div class="ni" onclick="cNav(this,'home')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Home<div class="nidot"></div></div>
+        <div class="ni" onclick="cNav(this,'explore')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>Explore<div class="nidot"></div></div>
+        <div class="ni" onclick="cNav(this,'map-screen')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>Map<div class="nidot"></div></div>
+        <div class="ni on"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>Saved<div class="nidot"></div></div>
+        <div class="ni" onclick="cNav(this,'profile')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile<div class="nidot"></div></div>
+      </div>
+    </div>
+
+    <!-- PROFILE -->
+    <div class="screen" id="profile">
+      <div class="scr" id="profile-content"></div>
+      <div class="bnav">
+        <div class="ni" onclick="cNav(this,'home')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Home<div class="nidot"></div></div>
+        <div class="ni" onclick="cNav(this,'explore')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>Explore<div class="nidot"></div></div>
+        <div class="ni" onclick="cNav(this,'map-screen')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>Map<div class="nidot"></div></div>
+        <div class="ni" onclick="cNav(this,'saved')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>Saved<div class="nidot"></div></div>
+        <div class="ni on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile<div class="nidot"></div></div>
+      </div>
+    </div>
+
+    <!-- ADMIN DASH -->
+    <div class="screen" id="admin-dash">
+      <div class="ahdr">
+        <div class="ahdr-top"><div><div class="agreet">WELCOME BACK 👋</div><div class="aname" id="admin-name">Dubai Events Co.</div></div><div class="aav">🏢</div></div>
+        <div class="atag">● EVENT ORGANIZER</div>
+        <div class="astats">
+          <div class="astat"><div class="astatn" id="s-live">5</div><div class="astatl">Live</div></div>
+          <div class="astatdiv"></div>
+          <div class="astat"><div class="astatn" id="s-rsvp">—</div><div class="astatl">RSVPs</div></div>
+          <div class="astatdiv"></div>
+          <div class="astat"><div class="astatn" id="s-views">—</div><div class="astatl">Views</div></div>
+        </div>
+      </div>
+      <div class="scr">
+        <div class="shr" style="padding-top:14px"><div class="tt">⚡ Quick Actions</div></div>
+        <div class="qarow">
+          <div class="qa qar" onclick="aN(null,'admin-add')"><div class="qaico">➕</div><div class="qalbl">Add Event</div></div>
+          <div class="qa qao" onclick="aN(null,'admin-events')"><div class="qaico">📋</div><div class="qalbl">My Events</div></div>
+          <div class="qa qag" onclick="toast('Analytics coming soon!')"><div class="qaico">📈</div><div class="qalbl">Analytics</div></div>
+        </div>
+        <div class="shr"><div class="tt">🔥 Active Events</div><div class="aa" onclick="aN(null,'admin-events')">See all</div></div>
+        <div id="dash-prev"></div>
+        <div style="height:10px"></div>
+      </div>
+      <div class="bnav">
+        <div class="ni on"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>Dash<div class="nidot"></div></div>
+        <div class="ni" onclick="aN(this,'admin-events')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Events<div class="nidot"></div></div>
+        <div class="ni" onclick="aN(this,'admin-add')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Add<div class="nidot"></div></div>
+        <div class="ni" onclick="signOut();go('home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Exit<div class="nidot"></div></div>
+      </div>
+    </div>
+
+    <!-- ADMIN EVENTS -->
+    <div class="screen" id="admin-events">
+      <div class="hdr"><div class="hdr-r1"><div class="logo">My Events</div><div class="hbtn" onclick="aN(null,'admin-add')" style="font-size:18px;font-weight:800">＋</div></div></div>
+      <div class="scr" id="aev-list"></div>
+      <div class="bnav">
+        <div class="ni" onclick="aN(this,'admin-dash')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>Dash<div class="nidot"></div></div>
+        <div class="ni on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Events<div class="nidot"></div></div>
+        <div class="ni" onclick="aN(this,'admin-add')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Add<div class="nidot"></div></div>
+        <div class="ni" onclick="signOut();go('home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Exit<div class="nidot"></div></div>
+      </div>
+    </div>
+
+    <!-- ADMIN ADD -->
+    <div class="screen" id="admin-add">
+      <div class="hdr"><div class="hdr-r1"><div class="logo">New Event</div></div></div>
+      <div class="scr"><div class="fwrap">
+        <div class="fg2"><label class="fl2">Event Title *</label><input class="fi2" id="f-title" placeholder="e.g. Jazz Night at City Walk"/></div>
+        <div class="fg2"><label class="fl2">Category *</label><select class="fs2" id="f-cat"><option>Music</option><option>Food</option><option>Sports</option><option>Art</option><option>Tech</option><option>Nightlife</option></select></div>
+        <div class="frow2">
+          <div class="fg2"><label class="fl2">Date *</label><input class="fi2" id="f-date" type="date"/></div>
+          <div class="fg2"><label class="fl2">Time *</label><input class="fi2" id="f-time" type="time"/></div>
+        </div>
+        <div class="fg2"><label class="fl2">Venue / Location *</label><input class="fi2" id="f-loc" placeholder="e.g. Alserkal Avenue, Dubai"/></div>
+        <div class="frow2">
+          <div class="fg2"><label class="fl2">Ticket Price</label><input class="fi2" id="f-price" placeholder="AED 0 or Free"/></div>
+          <div class="fg2"><label class="fl2">Age Restriction</label><select class="fs2" id="f-age"><option value="All Ages">All Ages</option><option value="18+">18+</option><option value="21+">21+</option></select></div>
+        </div>
+        <div class="fg2"><label class="fl2">Description</label><textarea class="fta2" id="f-desc" placeholder="Tell attendees what to expect…"></textarea></div>
+        <button class="subbtn" onclick="addEv()">🚀 Publish Event</button>
+      </div></div>
+      <div class="bnav">
+        <div class="ni" onclick="aN(this,'admin-dash')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>Dash<div class="nidot"></div></div>
+        <div class="ni" onclick="aN(this,'admin-events')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Events<div class="nidot"></div></div>
+        <div class="ni on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Add<div class="nidot"></div></div>
+        <div class="ni" onclick="signOut();go('home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Exit<div class="nidot"></div></div>
+      </div>
+    </div>
+
+    <!-- FILTER SHEET -->
+    <div class="overlay" id="foverlay" onclick="closeFilter()"></div>
+    <div class="sheet" id="fsheet">
+      <div class="shandle"></div>
+      <div class="stitle">Filter Events</div>
+      <div class="fgwrap">
+        <div class="fglabel">💰 Price</div>
+        <div class="forow">
+          <div class="fo on" data-f="price" data-v="any" onclick="setFo(this,'price')">Any</div>
+          <div class="fo" data-f="price" data-v="free" onclick="setFo(this,'price')">Free</div>
+          <div class="fo" data-f="price" data-v="low" onclick="setFo(this,'price')">Under AED 100</div>
+          <div class="fo" data-f="price" data-v="mid" onclick="setFo(this,'price')">AED 100–300</div>
+          <div class="fo" data-f="price" data-v="high" onclick="setFo(this,'price')">AED 300+</div>
+        </div>
+        <div class="sdiv"></div>
+        <div class="fglabel">🔞 Age Group</div>
+        <div class="forow">
+          <div class="fo on" data-f="age" data-v="any" onclick="setFo(this,'age')">All Ages</div>
+          <div class="fo" data-f="age" data-v="18+" onclick="setFo(this,'age')">18+</div>
+          <div class="fo" data-f="age" data-v="21+" onclick="setFo(this,'age')">21+</div>
+        </div>
+        <div class="sdiv"></div>
+        <div class="fglabel">📅 When</div>
+        <div class="forow">
+          <div class="fo on" data-f="when" data-v="any" onclick="setFo(this,'when')">Any Time</div>
+          <div class="fo" data-f="when" data-v="today" onclick="setFo(this,'when')">Today</div>
+          <div class="fo" data-f="when" data-v="weekend" onclick="setFo(this,'when')">Weekend</div>
+          <div class="fo" data-f="when" data-v="week" onclick="setFo(this,'when')">This Week</div>
+        </div>
+      </div>
+      <button class="apply-btn" onclick="applyFilter()">Apply Filters</button>
+      <div class="reset-link" onclick="resetFilter()">Reset all filters</div>
+    </div>
+
+  </div><!-- wrap -->
+</div><!-- phone -->
+<div class="toast" id="toast"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+/* ═══════════ DATA ═══════════ */
+const CE={Music:'🎵',Food:'🍽',Sports:'⚽',Art:'🎨',Tech:'💻',Nightlife:'🎉'};
+const CC={Music:'linear-gradient(135deg,#b34040,#801818)',Food:'linear-gradient(135deg,#d97706,#92400e)',Sports:'linear-gradient(135deg,#16a34a,#14532d)',Art:'linear-gradient(135deg,#7c3aed,#4c1d95)',Tech:'linear-gradient(135deg,#2563eb,#1e3a8a)',Nightlife:'linear-gradient(135deg,#db2777,#831843)'};
+const CA={Music:'#b34040',Food:'#d97706',Sports:'#16a34a',Art:'#7c3aed',Tech:'#2563eb',Nightlife:'#db2777'};
+
+let events=[
+  {id:0,title:'Dubai Music Festival 2026',cat:'Music',date:'Sat, Jun 21',time:'8:00 PM',loc:'Dubai Design District (D3)',price:'AED 150',priceN:150,age:'18+',when:'weekend',desc:'A night of world-class live music featuring international DJs and headline artists across five stages. Expect immersive light shows, food trucks, pop-up bars, and thousands of music lovers under the Dubai stars.',att:342,status:'live',mine:false,lat:25.1855,lng:55.2476},
+  {id:1,title:'Global Food Fair',cat:'Food',date:'Sun, Jun 22',time:'12:00 PM',loc:'City Walk, Dubai',price:'Free Entry',priceN:0,age:'All Ages',when:'week',desc:'Discover cuisines from over 40 countries all in one place. From Emirati street food to Japanese ramen and Mexican tacos — this fair is a full culinary passport. Live cooking demos, chef meet-and-greets, and kids\' food crafting stations.',att:2100,status:'live',mine:true,lat:25.1963,lng:55.2425},
+  {id:2,title:'Contemporary Art Exhibition',cat:'Art',date:'Mon, Jun 23',time:'10:00 AM',loc:'Alserkal Avenue, Al Quoz',price:'AED 50',priceN:50,age:'All Ages',when:'week',desc:'Explore thought-provoking works from 24 emerging UAE artists. The exhibition spans three interconnected galleries with multimedia installations, sculptural pieces, and a live mural being painted throughout the week.',att:89,status:'live',mine:false,lat:25.1565,lng:55.2161},
+  {id:3,title:'5-a-Side Football Cup',cat:'Sports',date:'Fri, Jun 27',time:'5:00 PM',loc:'Zabeel Park, Dubai',price:'AED 200/team',priceN:200,age:'All Ages',when:'week',desc:'Register your squad and compete in the UAE\'s most popular community football tournament. 32 teams, professional referees, video replay, and cash prizes for the top three finishers. All skill levels welcome.',att:156,status:'live',mine:true,lat:25.2285,lng:55.3055},
+  {id:4,title:'UOWD Night Out 2026',cat:'Nightlife',date:'Thu, Jun 26',time:'9:00 PM',loc:'UOWD Campus, Knowledge Village',price:'Free for Students',priceN:0,age:'18+',when:'week',desc:'The biggest student night of the semester. Three live bands, six food trucks, neon carnival rides, and an outdoor cinema. Show your student ID at the entrance. Open to students from all UAE universities.',att:430,status:'live',mine:true,lat:25.0972,lng:55.1554},
+  {id:5,title:'AI & Tech Meetup Dubai',cat:'Tech',date:'Wed, Jun 25',time:'7:00 PM',loc:'DIFC Innovation Hub, Gate Village',price:'Free',priceN:0,age:'All Ages',when:'week',desc:'Connect with Dubai\'s fastest-growing tech community. Keynote speakers from Google DeepMind, Microsoft Azure, and three UAE unicorns will share real-world AI insights. Networking dinner and open bar included after the talks.',att:95,status:'live',mine:false,lat:25.2048,lng:55.2788},
+  {id:6,title:'JBR Sunset Beach Party',cat:'Nightlife',date:'Sat, Jun 28',time:'6:00 PM',loc:'JBR Beach, Dubai Marina',price:'AED 80',priceN:80,age:'21+',when:'weekend',desc:'Sunset DJ sets right on the sand at JBR with panoramic views of the Marina skyline. Signature cocktails, gourmet bites, a beach volleyball court, and a fire show at 10 PM. Capacity strictly 400 — reserve early.',att:278,status:'live',mine:false,lat:25.0820,lng:55.1358},
+  {id:7,title:'Burj Park Jazz Sessions',cat:'Music',date:'Fri, Jun 20',time:'7:00 PM',loc:'Burj Park, Downtown Dubai',price:'Free',priceN:0,age:'All Ages',when:'today',desc:'Free outdoor jazz performances with the Burj Khalifa as your backdrop. Four local jazz ensembles perform across the evening. Bring a blanket, grab food from the surrounding restaurants, and enjoy the most beautiful setting in Dubai.',att:320,status:'live',mine:true,lat:25.1918,lng:55.2760},
+  {id:8,title:'Dubai Mall Food Festival',cat:'Food',date:'Sat, Jun 21',time:'11:00 AM',loc:'Dubai Mall, Ground Floor Atrium',price:'Free Entry',priceN:0,age:'All Ages',when:'weekend',desc:'Over 60 F&B concepts from Dubai Mall\'s best restaurants offer exclusive tasting portions at just AED 10 each. Try everything from 5-star hotel desserts to the city\'s best street eats, all under one roof next to the famous waterfall.',att:3200,status:'live',mine:true,lat:25.1972,lng:55.2796},
+  {id:9,title:'Global Village Closing Night',cat:'Nightlife',date:'Sun, Jun 22',time:'4:00 PM',loc:'Global Village, Emirates Road',price:'AED 15',priceN:15,age:'All Ages',when:'week',desc:'Global Village goes out with a bang for its grand finale night. 90 country pavilions, 200+ food stalls, a fireworks finale at midnight, and surprise concerts from regional and international artists. Family-friendly until 10 PM.',att:4500,status:'live',mine:false,lat:25.0697,lng:55.3095},
+  {id:10,title:'Louvre Abu Dhabi Night Tour',cat:'Art',date:'Sat, Jun 28',time:'8:00 PM',loc:'Louvre Abu Dhabi, Saadiyat Island',price:'AED 63',priceN:63,age:'All Ages',when:'weekend',desc:'Experience the iconic Louvre Abu Dhabi after dark. The "Rain of Light" dome effect, normally bathed in sunlight, takes on a mesmerising new character in the evening. Guided tours in English and Arabic every 45 minutes.',att:260,status:'live',mine:false,lat:24.5353,lng:54.3984},
+  {id:11,title:'Yas Marina F1 Watch Party',cat:'Sports',date:'Sun, Jun 22',time:'3:00 PM',loc:'Yas Marina Circuit, Abu Dhabi',price:'AED 250',priceN:250,age:'18+',when:'week',desc:'Watch the race live on giant screens at the circuit itself. VIP hospitality packages include paddock tours, driver Q&A sessions, an open bar, and a three-course dinner at the waterfront terrace. Premium experience guaranteed.',att:890,status:'live',mine:false,lat:24.4719,lng:54.6036},
+  {id:12,title:'Arabic Calligraphy Workshop',cat:'Art',date:'Wed, Jun 25',time:'2:00 PM',loc:'Dubai Frame, Zabeel Park',price:'AED 75',priceN:75,age:'All Ages',when:'week',desc:'A hands-on three-hour workshop with master calligrapher Dr. Khalid Al Mansouri. Learn the foundational strokes of Thuluth and Naskh scripts. All materials provided. Take home your own framed calligraphy piece at the end.',att:40,status:'live',mine:false,lat:25.2383,lng:55.2948},
+  {id:13,title:'Startup Pitch Night',cat:'Tech',date:'Thu, Jun 26',time:'6:30 PM',loc:'Hub71, ADGM, Abu Dhabi',price:'Free',priceN:0,age:'All Ages',when:'week',desc:'Eight early-stage UAE startups pitch live to a panel of regional VCs and angel investors. Open audience, live Q&A, and networking drinks afterwards. Past pitchers have raised over $20M combined. Your next investment opportunity might be here.',att:130,status:'live',mine:false,lat:24.4970,lng:54.3710},
+  {id:14,title:'Desert Rave – Midnight Sands',cat:'Nightlife',date:'Sat, Jun 28',time:'10:00 PM',loc:'Dubai Desert Conservation Reserve',price:'AED 350',priceN:350,age:'21+',when:'weekend',desc:'The UAE\'s most exclusive outdoor music event returns. Three international headliners, state-of-the-art sound production, desert fire installations, and a sunrise breakfast at 5 AM. Shuttle buses from JBR and DIFC. Strictly 600 guests.',att:600,status:'live',mine:false,lat:24.9940,lng:55.4200},
+];
+
+/* ═══════════ STATE ═══════════ */
+let curCat='All', prev='home', curId=null;
+let loggedIn=false, userName='', userEmail='', isOrg=false, notifOn=true;
+const savedSet=new Set(), goingSet=new Set();
+let fState={price:'any',age:'any',when:'any'};
+let featIdx=0, featTimer=null, mapInst=null, nearCircle=null;
+const FEAT_IDS=[0,7,6,4,8]; // top 5 for carousel
+
+/* ═══════════ NAVIGATION ═══════════ */
+function go(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  if(id==='saved') renderSaved();
+  if(id==='profile') renderProfile();
+  if(id==='map-screen') initMap();
+}
+function goBack(){go(prev);}
+function cNav(el,id){
+  go(id);
+  if(el){document.querySelectorAll('.bnav .ni').forEach(n=>n.classList.remove('on'));el.classList.add('on');}
+}
+function aN(el,id){
+  go(id);
+  if(id==='admin-events') renderAEvList();
+  if(id==='admin-dash') renderDash();
+  if(el){document.querySelectorAll('#admin-dash .ni,#admin-events .ni,#admin-add .ni').forEach(n=>n.classList.remove('on'));el.classList.add('on');}
+}
+
+/* ═══════════ LOCATION DROPDOWN ═══════════ */
+let locOpen=false;
+function toggleLoc(){
+  locOpen=!locOpen;
+  document.getElementById('loc-menu').classList.toggle('open',locOpen);
+  document.getElementById('loc-btn').classList.toggle('open',locOpen);
+  if(locOpen) setTimeout(()=>document.addEventListener('click',closeLoc),0);
+}
+function closeLoc(e){
+  if(!e.target.closest('.loc-wrap')){
+    locOpen=false;
+    document.getElementById('loc-menu').classList.remove('open');
+    document.getElementById('loc-btn').classList.remove('open');
+    document.removeEventListener('click',closeLoc);
+  }
+}
+function setCity(city,lid){
+  document.getElementById('cur-city').textContent=city;
+  document.querySelectorAll('.loc-opt').forEach(o=>o.classList.remove('active'));
+  document.getElementById(lid).classList.add('active');
+  locOpen=false;
+  document.getElementById('loc-menu').classList.remove('open');
+  document.getElementById('loc-btn').classList.remove('open');
+  document.removeEventListener('click',closeLoc);
+  toast(city==='Near Me 📡'?'📡 Showing events near you':`📍 Showing events in ${city}`);
+}
+
+/* ═══════════ CAROUSEL ═══════════ */
+function buildCarousel(){
+  const car=document.getElementById('carousel');
+  const dots=document.getElementById('cdots');
+  car.innerHTML=FEAT_IDS.map((id,i)=>{
+    const e=events[id];
+    return`<div class="cslide${i===0?' on':''}" onclick="viewEv(${e.id})">
+      <div class="cbg" style="background:${CC[e.cat]}">${CE[e.cat]}</div>
+      <div class="covl"></div>
+      <div class="cbadge">${i===0?'⭐ #1 TRENDING':'#'+(i+1)+' FEATURED'}</div>
+      <div class="cbody">
+        <div class="ccat">${e.cat} · ${e.date}</div>
+        <div class="ctitle">${e.title}</div>
+        <div class="cmeta"><span>📍 ${e.loc.split(',')[0]}</span><div class="cprice">${e.price}</div></div>
+      </div>
+    </div>`;
+  }).join('');
+  dots.innerHTML=FEAT_IDS.map((_,i)=>`<div class="dot${i===0?' on':''}" id="dot-${i}"></div>`).join('');
+  clearInterval(featTimer);
+  featTimer=setInterval(()=>{
+    document.querySelectorAll('.cslide')[featIdx].classList.remove('on');
+    document.getElementById('dot-'+featIdx).classList.remove('on');
+    featIdx=(featIdx+1)%FEAT_IDS.length;
+    document.querySelectorAll('.cslide')[featIdx].classList.add('on');
+    document.getElementById('dot-'+featIdx).classList.add('on');
+  },3500);
+}
+
+/* ═══════════ EVENT LIST ═══════════ */
+function renderList(cat){
+  let data=cat==='All'?[...events]:events.filter(e=>e.cat===cat);
+  if(fState.price!=='any'){
+    if(fState.price==='free') data=data.filter(e=>e.priceN===0);
+    else if(fState.price==='low') data=data.filter(e=>e.priceN>0&&e.priceN<100);
+    else if(fState.price==='mid') data=data.filter(e=>e.priceN>=100&&e.priceN<=300);
+    else if(fState.price==='high') data=data.filter(e=>e.priceN>300);
+  }
+  if(fState.age!=='any') data=data.filter(e=>e.age===fState.age||e.age==='All Ages');
+  if(fState.when!=='any') data=data.filter(e=>e.when===fState.when);
+  document.getElementById('elist').innerHTML=data.length?data.map(e=>`
+    <div class="ecard" onclick="viewEv(${e.id})">
+      <div class="eacc" style="background:${CA[e.cat]}"></div>
+      <div class="ethumb" style="background:${CC[e.cat]}">${CE[e.cat]}</div>
+      <div class="ebody">
+        <div class="etag">${e.cat} · ${e.age}</div>
+        <div class="etitle">${e.title}</div>
+        <div class="emeta">📅 ${e.date} · 📍 ${e.loc.split(',')[0]}</div>
+        <div class="efoot"><span class="eprice">${e.price}</span><span class="egoing">${e.att.toLocaleString()} going</span></div>
+      </div>
+    </div>`).join('')
+  :'<div style="padding:40px;text-align:center;color:#aaa"><div style="font-size:36px;margin-bottom:10px">🔍</div><div style="font-weight:700;color:#555;font-size:14px">No events match your filters</div><div style="font-size:12px;margin-top:6px">Try clearing some filters</div></div>';
+}
+
+function fCat(el,cat){
+  curCat=cat;
+  document.querySelectorAll('#home-chips .chip').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');renderList(cat);
+}
+function fFromEx(cat){
+  curCat=cat;
+  document.querySelectorAll('#home-chips .chip').forEach(c=>c.classList.toggle('on',c.textContent.includes(cat)));
+  renderList(cat);go('home');
+}
+
+/* ═══════════ EVENT DETAIL ═══════════ */
+function viewEv(id){
+  const e=events.find(ev=>ev.id===id);
+  curId=id; prev=document.querySelector('.screen.on').id;
+  const h=document.getElementById('dhero');
+  h.style.background=CC[e.cat];
+  h.innerHTML=`<div class="dback" onclick="goBack()">‹</div><span style="font-size:86px">${CE[e.cat]}</span><div class="dsave" id="dsave-btn" onclick="toggleSaveEv()">${savedSet.has(id)?'❤️':'🤍'}</div>`;
+  document.getElementById('dtitle').textContent=e.title;
+  document.getElementById('ddate').textContent=e.date;
+  document.getElementById('dtime').textContent=e.time;
+  document.getElementById('dloc').textContent=e.loc;
+  document.getElementById('dprice').textContent=e.price;
+  document.getElementById('dage').textContent=e.age;
+  document.getElementById('ddesc').textContent=e.desc;
+  document.getElementById('dcnt').textContent=`${e.att.toLocaleString()} people going`;
+  updateTBtn(e);go('event-detail');
+}
+
+function updateTBtn(e){
+  const btn=document.getElementById('tbtn');
+  const cr=document.getElementById('cancrsvp');
+  if(goingSet.has(curId)){btn.textContent='✅  You\'re Registered!';btn.className='tbtn going';cr.className='cancrsvp show';}
+  else if(!loggedIn){btn.textContent=e.priceN===0?'Register Interest →':'Get Tickets →';btn.className='tbtn';cr.className='cancrsvp';}
+  else{btn.textContent=e.priceN===0?'Register for Free →':'Get Tickets →';btn.className='tbtn';cr.className='cancrsvp';}
+}
+
+function handleTicket(){
+  if(goingSet.has(curId)) return;
+  if(!loggedIn){prev='event-detail';go('login');return;}
+  const e=events.find(ev=>ev.id===curId);
+  goingSet.add(curId);e.att++;
+  document.getElementById('dcnt').textContent=`${e.att.toLocaleString()} people going`;
+  updateTBtn(e);toast(`🎉 You\'re registered for ${e.title.split(' ').slice(0,3).join(' ')}…!`);
+}
+function cancelR(){
+  const e=events.find(ev=>ev.id===curId);
+  goingSet.delete(curId);e.att--;
+  document.getElementById('dcnt').textContent=`${e.att.toLocaleString()} people going`;
+  updateTBtn(e);toast('Registration cancelled');
+}
+function toggleSaveEv(){
+  const btn=document.getElementById('dsave-btn');
+  if(savedSet.has(curId)){savedSet.delete(curId);btn.textContent='🤍';toast('Removed from saved');}
+  else{savedSet.add(curId);btn.textContent='❤️';toast('❤️ Saved!');}
+  updateBadge();
+}
+function updateBadge(){document.querySelectorAll('.nibadge').forEach(b=>b.classList.toggle('show',savedSet.size>0));}
+
+/* ═══════════ MAP ═══════════ */
+function initMap(){
+  const mapDiv=document.getElementById('leaflet-map');
+  if(mapInst){setTimeout(()=>mapInst.invalidateSize(),100);return;}
+  setTimeout(()=>{
+    mapInst=L.map(mapDiv,{center:[25.1972,55.2708],zoom:11,zoomControl:false});
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+      attribution:'© <a href="https://openstreetmap.org">OpenStreetMap</a>',maxZoom:18
+    }).addTo(mapInst);
+    L.control.zoom({position:'bottomright'}).addTo(mapInst);
+    events.forEach(e=>{
+      if(!e.lat) return;
+      const icon=L.divIcon({
+        html:`<div style="background:${CA[e.cat]};width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;box-shadow:0 4px 14px rgba(0,0,0,.35);border:3px solid white;cursor:pointer">${CE[e.cat]}</div>`,
+        className:'',iconSize:[38,38],iconAnchor:[19,19]
+      });
+      const m=L.marker([e.lat,e.lng],{icon}).addTo(mapInst);
+      m.bindPopup(makePopup(e),{maxWidth:220,className:'custom-popup'});
+    });
+    mapInst.invalidateSize();
+  },120);
+}
+
+function makePopup(e){
+  return`<div style="font-family:'Inter',sans-serif">
+    <div style="background:${CC[e.cat]};height:58px;display:flex;align-items:center;justify-content:center;font-size:30px">${CE[e.cat]}</div>
+    <div style="padding:11px 12px">
+      <div style="font-size:13px;font-weight:800;color:#111;margin-bottom:4px;line-height:1.3">${e.title}</div>
+      <div style="font-size:11px;color:#888;margin-bottom:2px">📅 ${e.date} at ${e.time}</div>
+      <div style="font-size:11px;color:#888;margin-bottom:7px">📍 ${e.loc}</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px">
+        <span style="font-size:13px;font-weight:800;color:#801818">${e.price}</span>
+        <span style="font-size:10px;font-weight:700;background:#f4f4f4;color:#555;padding:3px 8px;border-radius:100px">${e.att.toLocaleString()} going</span>
+      </div>
+      <button onclick="mapToEvent(${e.id})" style="width:100%;background:#801818;color:white;border:none;border-radius:10px;padding:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif">View Event →</button>
+    </div>
+  </div>`;
+}
+
+window.mapToEvent=function(id){prev='map-screen';viewEv(id);};
+
+function nearMe(){
+  if(!mapInst){toast('Loading map…');return;}
+  toast('📍 Showing events near Downtown Dubai…');
+  mapInst.flyTo([25.1972,55.2796],14,{animate:true,duration:1.5});
+  if(nearCircle) mapInst.removeLayer(nearCircle);
+  nearCircle=L.circle([25.1972,55.2796],{radius:2000,color:'#801818',fillColor:'#801818',fillOpacity:.07,weight:2,dashArray:'6,5'}).addTo(mapInst);
+}
+
+/* ═══════════ LOGIN ═══════════ */
+function doLogin(){
+  const n=document.getElementById('l-name').value.trim();
+  const em=document.getElementById('l-email').value.trim();
+  if(!n||!em){toast('⚠️ Fill in your name and email');return;}
+  completeLogin(n,em,false);
+}
+function loginAs(type){
+  if(type==='user') completeLogin('Sara Al Mazrouei','sara@whats-on.ae',false);
+  else completeLogin('Dubai Events Co.','events@dubaieco.ae',true);
+}
+function completeLogin(n,em,org){
+  loggedIn=true;userName=n;userEmail=em;isOrg=org;
+  ['l-name','l-email','l-phone'].forEach(id=>document.getElementById(id).value='');
+  if(org){
+    go('admin-dash');renderDash();
+    toast(`👋 Welcome, ${n}!`);
+  } else {
+    // Pre-load Sara's state
+    if(n==='Sara Al Mazrouei'){[0,6,8,11].forEach(id=>savedSet.add(id));[4,5].forEach(id=>goingSet.add(id));}
+    updateBadge();
+    if(curId!==null){
+      const e=events.find(ev=>ev.id===curId);
+      goingSet.add(curId);e.att++;
+      go('event-detail');
+      setTimeout(()=>{updateTBtn(e);document.getElementById('dcnt').textContent=`${e.att.toLocaleString()} people going`;toast(`👋 Welcome, ${n.split(' ')[0]}! You\'re in!`);},150);
+    } else {go('home');toast(`👋 Welcome back, ${n.split(' ')[0]}!`);}
+  }
+}
+
+/* ═══════════ SAVED ═══════════ */
+function renderSaved(){
+  const el=document.getElementById('saved-content');
+  const ids=[...savedSet];
+  if(!ids.length){
+    el.innerHTML=`<div class="saved-empty"><div class="eico">🤍</div><div class="etit">Nothing saved yet</div><div class="esub">Tap the ❤️ on any event to save it here for quick access.</div><button class="ebtn" onclick="cNav(null,'explore')">Explore Events</button></div>`;
+    return;
+  }
+  el.innerHTML='<div style="padding-top:6px"></div>'+ids.map(id=>{
+    const e=events.find(ev=>ev.id===id);if(!e) return'';
+    return`<div style="padding:0 14px 10px"><div class="ecard" onclick="viewEv(${e.id})">
+      <div class="eacc" style="background:${CA[e.cat]}"></div>
+      <div class="ethumb" style="background:${CC[e.cat]}">${CE[e.cat]}</div>
+      <div class="ebody">
+        <div class="etag">${e.cat}</div>
+        <div class="etitle">${e.title}</div>
+        <div class="emeta">📅 ${e.date} · 📍 ${e.loc.split(',')[0]}</div>
+        <div class="efoot"><span class="eprice">${e.price}</span><span class="egoing">${goingSet.has(id)?'✅ Going':'Tap to RSVP'}</span></div>
+      </div>
+    </div></div>`;
+  }).join('');
+}
+
+/* ═══════════ PROFILE ═══════════ */
+function renderProfile(){
+  const el=document.getElementById('profile-content');
+  if(!loggedIn){
+    el.innerHTML=`<div style="background:var(--r);padding:12px 18px 24px">
+      <div style="color:rgba(255,255,255,.5);font-size:11px;font-weight:700;letter-spacing:.5px">WHAT\'S ON</div>
+      <div style="font-size:21px;font-weight:900;color:white;letter-spacing:-.5px;margin-top:2px">Profile</div>
+    </div>
+    <div class="guest-body">
+      <div class="guest-ico">👤</div>
+      <div class="guest-title">Sign in to What's On</div>
+      <div class="guest-sub">Save events, register in one tap, and get personalised recommendations based on what you love in the UAE.</div>
+      <button class="signin-btn" onclick="prev='profile';go('login')">Sign In / Create Account</button>
+      <div style="margin-top:22px;height:1px;background:#eee"></div>
+      <div style="margin-top:18px;text-align:center">
+        <div style="font-size:12px;color:#888;margin-bottom:10px;font-weight:500">Are you an event organiser?</div>
+        <button onclick="go('login')" style="background:white;color:var(--r);border:1.5px solid var(--r);padding:12px 22px;border-radius:13px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif">Organizer Login →</button>
+      </div>
+    </div>`;
+    return;
+  }
+  const init=userName.charAt(0).toUpperCase();
+  const myGoing=[...goingSet].map(id=>events.find(e=>e.id===id)).filter(Boolean);
+  el.innerHTML=`
+    <div class="phdr">
+      <div class="phdr-top"><div class="plogo">What's<em> On</em></div><div class="pgear" onclick="toast('Settings coming soon!')">⚙️</div></div>
+      <div class="pav-wrap"><div class="pav">${init}</div><div class="pname">${userName}</div><div class="pemail">${userEmail}</div></div>
+    </div>
+    <div class="pcard">
+      <div class="pstat"><div class="pstat-n">${goingSet.size}</div><div class="pstat-l">Going To</div></div>
+      <div class="pstat-div"></div>
+      <div class="pstat"><div class="pstat-n">${savedSet.size}</div><div class="pstat-l">Saved</div></div>
+      <div class="pstat-div"></div>
+      <div class="pstat"><div class="pstat-n">Dubai</div><div class="pstat-l">City</div></div>
+    </div>
+    ${myGoing.length?`<div class="psec"><div class="psec-title">Upcoming Events</div>${myGoing.map(e=>`<div class="prow" onclick="viewEv(${e.id})"><div class="prow-ico" style="background:${CC[e.cat]};color:white;font-size:15px">${CE[e.cat]}</div><div class="prow-body"><div class="prow-title">${e.title}</div><div class="prow-sub">📅 ${e.date} · ✅ Registered</div></div><div class="prow-arr">›</div></div>`).join('')}</div>`:''}
+    <div class="psec" style="margin-top:13px">
+      <div class="psec-title">Preferences</div>
+      <div class="prow"><div class="prow-ico" style="background:#fff3e0">🔔</div><div class="prow-body"><div class="prow-title">Notifications</div><div class="prow-sub">Event reminders & new events</div></div><div class="tog ${notifOn?'on':''}" onclick="notifOn=!notifOn;renderProfile()"></div></div>
+      <div class="prow" onclick="toast('Edit interests coming soon!')"><div class="prow-ico" style="background:#fce4ec">❤️</div><div class="prow-body"><div class="prow-title">My Interests</div><div class="prow-sub">Music, Food, Tech +3</div></div><div class="prow-arr">›</div></div>
+      <div class="prow" onclick="toast('Help center coming soon!')"><div class="prow-ico" style="background:#e3f2fd">💬</div><div class="prow-body"><div class="prow-title">Help & Support</div><div class="prow-sub">FAQs and contact us</div></div><div class="prow-arr">›</div></div>
+    </div>
+    <div style="padding:13px 14px 0">
+      <button onclick="go('login')" style="width:100%;padding:14px;background:white;color:var(--r);border:1.5px solid var(--r);border-radius:14px;font-size:14px;font-weight:800;cursor:pointer;font-family:'Inter',sans-serif;margin-bottom:9px">🎪 Switch to Organizer Mode</button>
+      <button onclick="signOut()" style="width:100%;padding:14px;background:white;color:#888;border:1.5px solid #e0e0e0;border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;margin-bottom:24px">Sign Out</button>
+    </div>`;
+}
+function signOut(){loggedIn=false;userName='';userEmail='';isOrg=false;savedSet.clear();goingSet.clear();updateBadge();renderProfile();toast('Signed out');}
+
+/* ═══════════ FILTERS ═══════════ */
+function openFilter(){document.getElementById('foverlay').classList.add('show');document.getElementById('fsheet').classList.add('show');}
+function closeFilter(){document.getElementById('foverlay').classList.remove('show');document.getElementById('fsheet').classList.remove('show');}
+function setFo(el,field){document.querySelectorAll(`.fo[data-f="${field}"]`).forEach(f=>f.classList.remove('on'));el.classList.add('on');fState[field]=el.dataset.v;}
+function applyFilter(){
+  closeFilter();renderList(curCat);
+  const tags=[];
+  const pm={free:'Free',low:'<AED 100',mid:'AED 100–300',high:'AED 300+'};
+  const wm={today:'Today',weekend:'Weekend',week:'This Week'};
+  if(fState.price!=='any') tags.push({k:'price',l:'💰 '+pm[fState.price]});
+  if(fState.age!=='any') tags.push({k:'age',l:'🔞 '+fState.age});
+  if(fState.when!=='any') tags.push({k:'when',l:'📅 '+wm[fState.when]});
+  document.getElementById('active-filters').innerHTML=tags.map(t=>`<div class="ftag" onclick="clearF('${t.k}')">${t.l} ✕</div>`).join('');
+  document.getElementById('fmainbtn').classList.toggle('on',tags.length>0);
+}
+function clearF(k){fState[k]='any';document.querySelectorAll(`.fo[data-f="${k}"]`).forEach(f=>f.classList.remove('on'));document.querySelector(`.fo[data-f="${k}"][data-v="any"]`).classList.add('on');applyFilter();}
+function resetFilter(){fState={price:'any',age:'any',when:'any'};document.querySelectorAll('.fo').forEach(f=>f.classList.toggle('on',f.dataset.v==='any'));applyFilter();closeFilter();}
+
+/* ═══════════ ADMIN ═══════════ */
+function renderDash(){
+  const mine=events.filter(e=>e.mine);
+  const live=mine.filter(e=>e.status==='live');
+  const rsvp=mine.reduce((s,e)=>s+e.att,0);
+  document.getElementById('s-live').textContent=live.length;
+  document.getElementById('s-rsvp').textContent=rsvp.toLocaleString();
+  document.getElementById('s-views').textContent=(rsvp*4.1/1000).toFixed(1)+'k';
+  document.getElementById('dash-prev').innerHTML=live.slice(0,4).map(e=>`
+    <div class="aev">
+      <div class="aev-thumb" style="background:${CC[e.cat]}">${CE[e.cat]}</div>
+      <div class="aev-body"><div class="aev-title">${e.title}</div><div class="aev-sub">📅 ${e.date} · ${e.att.toLocaleString()} RSVPs</div></div>
+      <span class="stb stlive">Live</span>
+    </div>`).join('');
+}
+function renderAEvList(){
+  const mine=events.filter(e=>e.mine);
+  document.getElementById('aev-list').innerHTML=mine.length?mine.map(e=>`
+    <div class="aev">
+      <div class="aev-thumb" style="background:${CC[e.cat]}">${CE[e.cat]}</div>
+      <div class="aev-body"><div class="aev-title">${e.title}</div><div class="aev-sub">📅 ${e.date} · 📍 ${e.loc.split(',')[0]}</div><div class="aev-sub">${e.att.toLocaleString()} RSVPs · ${e.price}</div></div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:7px">
+        <span class="stb st${e.status}">${e.status[0].toUpperCase()+e.status.slice(1)}</span>
+        <span style="font-size:11px;color:var(--r);cursor:pointer;font-weight:700" onclick="delEv(${e.id})">Delete</span>
+      </div>
+    </div>`).join('')
+  :'<div style="padding:44px 22px;text-align:center;color:#aaa"><div style="font-size:38px;margin-bottom:10px">📭</div><div style="font-size:14px;font-weight:700;color:#555;margin-bottom:14px">No events yet</div><span style="color:var(--r);font-weight:700;cursor:pointer" onclick="aN(null,\'admin-add\')">Add your first event →</span></div>';
+}
+function addEv(){
+  const title=document.getElementById('f-title').value.trim();
+  const cat=document.getElementById('f-cat').value;
+  const date=document.getElementById('f-date').value;
+  const time=document.getElementById('f-time').value;
+  const loc=document.getElementById('f-loc').value.trim();
+  const price=document.getElementById('f-price').value.trim();
+  const age=document.getElementById('f-age').value;
+  const desc=document.getElementById('f-desc').value.trim();
+  if(!title||!loc){toast('⚠️ Fill in required fields');return;}
+  const fd=date?new Date(date+'T12:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}):'TBD';
+  const ft=time?new Date('1970-01-01T'+time).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}):'TBD';
+  const fp=price?(price.toLowerCase()==='free'||price==='0'?'Free':price.startsWith('AED')?price:'AED '+price):'Free';
+  const pN=fp==='Free'?0:parseInt(fp.replace(/[^0-9]/g,''))||0;
+  events.push({id:events.length,title,cat,date:fd,time:ft,loc,price:fp,priceN:pN,age,when:'week',desc:desc||'Details coming soon.',att:0,status:'live',mine:true,lat:25.1972,lng:55.2708});
+  ['f-title','f-date','f-time','f-loc','f-price','f-desc'].forEach(id=>document.getElementById(id).value='');
+  renderList(curCat);renderDash();toast('🚀 Event published!');
+  setTimeout(()=>aN(null,'admin-events'),1300);
+}
+function delEv(id){events=events.filter(e=>e.id!==id);renderAEvList();renderDash();renderList(curCat);toast('Event deleted');}
+
+/* ═══════════ TOAST ═══════════ */
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2600);
+}
+
+/* ═══════════ INIT ═══════════ */
+buildCarousel();renderList('All');renderDash();
+</script>
+</body>
+</html>
