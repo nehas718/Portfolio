@@ -1,13 +1,14 @@
 /**
  * Batterly: case study content.
  * Edit the copy and image paths here; the component renders whatever is in this file.
+ * Images live in public/images and are served from the site root.
  */
 
-import studioImage from "./images/batterly-studio.png";
-import controlImage from "./images/batterly-control.png";
-import pumpImage from "./images/batterly-pump.png";
-import uowImage from "./images/batterly-uow.png";
-import previewThumb from "./images/batterly-thumb.png";
+const studioImage = "/images/batterly-studio.jpg";
+const controlImage = "/images/batterly-control.png";
+const pumpImage = "/images/batterly-pump.png";
+const uowImage = "/images/batterly-uow.png";
+const previewThumb = "/images/batterly-thumb.jpg";
 
 /* -------------------------------------------------------------------------
    Gallery

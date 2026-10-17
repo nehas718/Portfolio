@@ -6,6 +6,9 @@
 # ---------------------------------------------------------------------------
 *.png                filter=lfs diff=lfs merge=lfs -text
 *.jpg                filter=lfs diff=lfs merge=lfs -text
+# Portfolio screenshots stay as normal Git files so Vercel does not deploy LFS pointers.
+public/images/**     !filter !diff !merge -text
+public/previews/**   !filter !diff !merge -text
 *.jpeg               filter=lfs diff=lfs merge=lfs -text
 *.gif                filter=lfs diff=lfs merge=lfs -text
 *.bmp                filter=lfs diff=lfs merge=lfs -text

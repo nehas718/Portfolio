@@ -1,13 +1,14 @@
 /**
  * Auxilium: case study content.
  * Edit the copy and image paths here; the component renders whatever is in this file.
+ * Images live in public/images and are served from the site root.
  */
 
-import appImage from "./images/auxilium-app.png";
-import hardwareImage from "./images/auxilium-hardware.png";
-import fusionImage from "./images/auxilium-fusion.png";
-import awardImage from "./images/auxilium-award.png";
-import awardThumb from "./images/auxilium-award-thumb.png";
+const appImage = "/images/auxilium-app.jpg";
+const hardwareImage = "/images/auxilium-hardware.jpg";
+const fusionImage = "/images/auxilium-fusion.png";
+const awardImage = "/images/auxilium-award.jpg";
+const awardThumb = "/images/auxilium-award-thumb.jpg";
 
 export const goals = [
   "Support movement",
