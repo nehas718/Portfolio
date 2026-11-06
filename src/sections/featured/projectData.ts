@@ -1,10 +1,13 @@
 /**
  * Featured projects shown in the 3D carousel.
  *
- * - `image` : path to a screenshot (e.g. "/images/whatson.png").
- *             Leave as null to show the built-in placeholder artwork.
- * - `glow`  : soft colour that lights the stage while the project is active.
- * - `path`  : where the case study lives once you connect routing.
+ * - `image`  : path to a screenshot (e.g. "/images/whatson.png").
+ *              Leave as null to show the built-in placeholder artwork.
+ * - `glow`   : soft colour that lights the stage while the project is active.
+ * - `path`   : where the case study lives once you connect routing.
+ * - `status` : optional. "in-progress" adds the amber status bar and label.
+ * - `statusLabel` : text shown in the status label (defaults to "In progress").
+ * - `cta`    : optional label for the active card's link (defaults to "View Case Study").
  */
 
 export interface CarouselProject {
@@ -12,11 +15,14 @@ export interface CarouselProject {
   title: string;
   category: string;
   description: string;
-  role: string;
-  technologies: string[];
+  role?: string;
+  technologies?: string[];
   image: string | null;
   glow: string;
   path: string;
+  status?: "in-progress";
+  statusLabel?: string;
+  cta?: string;
 }
 
 const projects: CarouselProject[] = [
@@ -55,6 +61,19 @@ const projects: CarouselProject[] = [
     image: null,
     glow: "rgba(70, 115, 225, 0.5)",
     path: "/projects/auxilium",
+  },
+  {
+    id: "apex",
+    title: "Apex by Astra",
+    category: "AI / OPERATIONS SOFTWARE",
+    description:
+      "AI-powered equipment maintenance and workforce management for an oilfield drilling services company.",
+    image: null,
+    glow: "rgba(80, 140, 200, 0.5)",
+    path: "/projects/apex",
+    status: "in-progress",
+    statusLabel: "In progress",
+    cta: "View Overview",
   },
 ];
 

@@ -289,6 +289,84 @@
   pointer-events: none;
 }
 
+/* In-progress status: amber pill (top right) plus a slim amber edge on the card */
+.fp-status {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.32rem 0.75rem 0.32rem 0.65rem;
+  border: 1px solid rgba(224, 160, 48, 0.42);
+  border-radius: 999px;
+  background: rgba(38, 27, 6, 0.6);
+  color: #f3c978;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  pointer-events: none;
+}
+
+/* Cards on the left are covered on their right side, so keep the label on the visible side */
+.fp-card.is-previous .fp-status,
+.fp-card.is-far-previous .fp-status {
+  top: 3.1rem;
+  right: auto;
+  left: 1rem;
+}
+
+.fp-status-dot {
+  position: relative;
+  flex-shrink: 0;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: #e0a030;
+}
+
+.fp-status-dot::after {
+  content: "";
+  position: absolute;
+  inset: -0.28rem;
+  border-radius: 50%;
+  background: #e0a030;
+  opacity: 0.35;
+  animation: fp-status-pulse 2.4s ease-out infinite;
+}
+
+@keyframes fp-status-pulse {
+  from {
+    transform: scale(0.6);
+    opacity: 0.5;
+  }
+  to {
+    transform: scale(1.8);
+    opacity: 0;
+  }
+}
+
+.fp-card[data-status="in-progress"]::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 3;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    #e0a030 0%,
+    rgba(224, 160, 48, 0.55) 45%,
+    rgba(224, 160, 48, 0.08) 100%
+  );
+  pointer-events: none;
+}
+
 .fp-info {
   position: absolute;
   right: 0;
@@ -431,6 +509,12 @@
     linear-gradient(135deg, #10265a, #0a1512);
 }
 
+.fp-art--apex {
+  background:
+    radial-gradient(55% 65% at 72% 26%, rgba(91, 108, 255, 0.26), transparent 70%),
+    linear-gradient(135deg, #1a2a33, #0a1512);
+}
+
 .fp-art .pn {
   fill: rgba(238, 243, 239, 0.08);
   stroke: rgba(238, 243, 239, 0.2);
@@ -459,6 +543,22 @@
   fill: none;
   stroke: rgba(238, 243, 239, 0.32);
   stroke-width: 2;
+}
+
+.fp-art .pg {
+  fill: #5fe08a;
+}
+
+.fp-art .pw {
+  fill: #e0a030;
+}
+
+.fp-art .pck {
+  fill: none;
+  stroke: #0a1512;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .fp-art .pb {
@@ -598,6 +698,15 @@
     padding: 1.1rem 1.15rem 1.2rem;
   }
 
+  .fp-card[data-status] .fp-badge {
+    display: none;
+  }
+
+  .fp-card.is-previous .fp-status,
+  .fp-card.is-far-previous .fp-status {
+    top: 1rem;
+  }
+
   .fp-arrow {
     display: none;
   }
@@ -617,6 +726,11 @@
     --r2: 0deg;
     --z1: 0px;
     --z2: 0px;
+  }
+
+  .fp-status-dot::after {
+    animation: none;
+    opacity: 0.35;
   }
 
   .fp-more,

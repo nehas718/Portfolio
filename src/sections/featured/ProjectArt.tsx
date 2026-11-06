@@ -127,10 +127,55 @@ function AuxiliumArt() {
   );
 }
 
+function ApexArt() {
+  return (
+    <>
+      <g transform="translate(360 190) scale(0.88) translate(-358 -164)">
+        <rect x="112" y="44" width="256" height="240" rx="18" className="pn" />
+        <rect x="134" y="64" width="92" height="9" rx="4.5" className="ps" />
+        <rect x="296" y="62" width="48" height="14" rx="7" className="pn" />
+        <rect x="134" y="94" width="210" height="38" rx="10" className="pn" />
+        <circle cx="154" cy="113" r="5" className="pg" />
+        <rect x="172" y="105" width="96" height="7" rx="3.5" className="ps" />
+        <rect x="172" y="118" width="62" height="5" rx="2.5" className="pl" />
+        <rect x="296" y="106" width="34" height="14" rx="7" className="pl" />
+        <rect x="134" y="140" width="210" height="38" rx="10" className="pn" />
+        <circle cx="154" cy="159" r="5" className="pw" />
+        <rect x="172" y="151" width="84" height="7" rx="3.5" className="ps" />
+        <rect x="172" y="164" width="70" height="5" rx="2.5" className="pl" />
+        <rect x="296" y="152" width="34" height="14" rx="7" className="pl" />
+        <rect x="134" y="186" width="210" height="38" rx="10" className="pn" />
+        <circle cx="154" cy="205" r="5" className="pg" />
+        <rect x="172" y="197" width="104" height="7" rx="3.5" className="ps" />
+        <rect x="172" y="210" width="54" height="5" rx="2.5" className="pl" />
+        <rect x="296" y="198" width="34" height="14" rx="7" className="pl" />
+        <rect x="392" y="44" width="212" height="148" rx="18" className="pn" />
+        <rect x="412" y="64" width="72" height="9" rx="4.5" className="ps" />
+        <rect x="412" y="92" width="16" height="16" rx="5" className="pa" />
+        <path d="M416 100l3 3 5-6" className="pck" />
+        <rect x="438" y="95" width="110" height="7" rx="3.5" className="ps" />
+        <rect x="412" y="122" width="16" height="16" rx="5" className="pn" />
+        <rect x="438" y="125" width="84" height="7" rx="3.5" className="ps" />
+        <rect x="412" y="152" width="16" height="16" rx="5" className="pn" />
+        <rect x="438" y="155" width="98" height="7" rx="3.5" className="pl" />
+        <rect x="392" y="204" width="212" height="80" rx="16" className="pn" />
+        <path
+          d="M420 226l3.2 8.8 8.8 3.2-8.8 3.2L420 250l-3.2-8.8-8.8-3.2 8.8-3.2z"
+          className="pa"
+        />
+        <rect x="446" y="226" width="124" height="8" rx="4" className="ps" />
+        <rect x="446" y="244" width="92" height="6" rx="3" className="pl" />
+        <rect x="446" y="258" width="64" height="6" rx="3" className="pl" />
+      </g>
+    </>
+  );
+}
+
 const ART_BY_ID: Record<string, () => ReactNode> = {
   whatson: WhatsOnArt,
   batterly: BatterlyArt,
   auxilium: AuxiliumArt,
+  apex: ApexArt,
 };
 
 export default function ProjectArt({ id }: { id: string }) {

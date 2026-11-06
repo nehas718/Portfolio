@@ -63,9 +63,12 @@ function ProjectCard({
   onActivate,
   onOpen,
 }: ProjectCardProps) {
+  const statusLabel = project.status ? project.statusLabel || "In progress" : null;
+  const statusNote = statusLabel ? `, ${statusLabel.toLowerCase()}` : "";
+  const cta = project.cta || "View Case Study";
   const label = isActive
-    ? `Open case study: ${project.title}`
-    : `Show ${project.title}`;
+    ? `${cta}: ${project.title}${statusNote}`
+    : `Show ${project.title}${statusNote}`;
 
   const handleClick = () => {
     if (isActive) {
@@ -78,9 +81,10 @@ function ProjectCard({
   return (
     <article
       className={`fp-card is-${position}`}
+      data-status={project.status || undefined}
       role="group"
       aria-roledescription="slide"
-      aria-label={`${index + 1} of ${total}: ${project.title}`}
+      aria-label={`${index + 1} of ${total}: ${project.title}${statusNote}`}
     >
       <div className="fp-media">
         {project.image ? (
@@ -100,6 +104,13 @@ function ProjectCard({
 
       {!project.image && <span className="fp-badge">Project preview</span>}
 
+      {statusLabel ? (
+        <span className="fp-status">
+          <span className="fp-status-dot" aria-hidden="true" />
+          {statusLabel}
+        </span>
+      ) : null}
+
       <div className="fp-info">
         <p className="fp-category">{project.category}</p>
         <h3 className="fp-title">{project.title}</h3>
@@ -108,7 +119,7 @@ function ProjectCard({
           <div className="fp-more-inner">
             <p className="fp-description">{project.description}</p>
             <span className="fp-cta">
-              View Case Study <span aria-hidden="true">→</span>
+              {cta} <span aria-hidden="true">→</span>
             </span>
           </div>
         </div>
