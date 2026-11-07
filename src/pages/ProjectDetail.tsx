@@ -5,6 +5,7 @@ import ProjectArt from "../components/ProjectArt";
 import CaseStudy from "../components/CaseStudy/CaseStudy";
 import AuxiliumCaseStudy from "../components/AuxiliumCaseStudy/AuxiliumCaseStudy";
 import BatterlyCaseStudy from "../components/BatterlyCaseStudy/BatterlyCaseStudy";
+import ApexCaseStudy from "../components/ApexCaseStudy/ApexCaseStudy";
 
 export default function ProjectDetail() {
   const { id } = useParams<{ id: string }>();
@@ -34,47 +35,53 @@ export default function ProjectDetail() {
     );
   }
 
+  const isCaseStudy =
+    project.id === "whatson" ||
+    project.id === "auxilium" ||
+    project.id === "batterly" ||
+    project.id === "apex";
+  const hasCustomHero = project.id === "apex";
+
   return (
-    <article
-      className={`project${
-        project.id === "whatson" || project.id === "auxilium" || project.id === "batterly"
-          ? " project--case"
-          : ""
-      }`}
-    >
+    <article className={`project${isCaseStudy ? " project--case" : ""}`}>
       <div className="wrap">
         <Link className="back" to="/#work">
           <span aria-hidden="true">←</span> All projects
         </Link>
-        <p className="p-cat">{project.cat}</p>
-        <h1>{project.title}</h1>
-        <p className="p-sum">{project.sum}</p>
-        <dl className="p-meta">
-          {project.meta.map(([label, value]) => (
-            <div key={label}>
-              <dt>{label}</dt>
-              <dd>{value}</dd>
-            </div>
-          ))}
-        </dl>
 
-        {project.id === "whatson" ||
-        project.id === "auxilium" ||
-        project.id === "batterly" ? null : (
-          <div className="frame">
-            <span className="tag">Project preview</span>
-            <ProjectArt id={project.id} />
-          </div>
-        )}
+        {!hasCustomHero ? (
+          <>
+            <p className="p-cat">{project.cat}</p>
+            <h1>{project.title}</h1>
+            <p className="p-sum">{project.sum}</p>
+            <dl className="p-meta">
+              {project.meta.map(([label, value]) => (
+                <div key={label}>
+                  <dt>{label}</dt>
+                  <dd>{value}</dd>
+                </div>
+              ))}
+            </dl>
 
-        {project.sections.map((section) => (
-          <section className="p-sec" key={section.title}>
-            <h2>{section.title}</h2>
-            <div className="p-body">
-              <SectionBody section={section} />
-            </div>
-          </section>
-        ))}
+            {project.id === "whatson" ||
+            project.id === "auxilium" ||
+            project.id === "batterly" ? null : (
+              <div className="frame">
+                <span className="tag">Project preview</span>
+                <ProjectArt id={project.id} />
+              </div>
+            )}
+
+            {project.sections.map((section) => (
+              <section className="p-sec" key={section.title}>
+                <h2>{section.title}</h2>
+                <div className="p-body">
+                  <SectionBody section={section} />
+                </div>
+              </section>
+            ))}
+          </>
+        ) : null}
       </div>
 
       {project.id === "whatson" ? (
@@ -84,6 +91,8 @@ export default function ProjectDetail() {
       {project.id === "auxilium" ? <AuxiliumCaseStudy /> : null}
 
       {project.id === "batterly" ? <BatterlyCaseStudy /> : null}
+
+      {project.id === "apex" ? <ApexCaseStudy /> : null}
 
       <div className="next on-band">
         <div className="wrap">

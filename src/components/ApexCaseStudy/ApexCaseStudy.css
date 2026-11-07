@@ -1,0 +1,817 @@
+﻿/* ==========================================================================
+   Apex by Astra: hero, interactive visuals and side card.
+   The tab / panel / button shell comes from CaseStudy.css (imported by the
+   component), so this file only adds what is specific to this page.
+   ========================================================================== */
+
+/* Eyebrow used by Apex headers (kept local so CaseStudy.css stays untouched) */
+.cs-eyebrow {
+  margin: 0 0 0.7rem;
+  color: var(--cs-accent);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* -------------------------------------------------------------------------
+   Hero
+   ------------------------------------------------------------------------- */
+
+.ap-hero.cs {
+  --ap-amber: #e0a030;
+  --ap-amber-ink: #8a5a0a;
+
+  /* .project already provides fixed-header top spacing */
+  padding: 1.25rem 0 clamp(2rem, 4vw, 3rem);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .ap-hero.cs {
+    --ap-amber-ink: #f3c978;
+  }
+}
+
+:root[data-theme="dark"] .ap-hero.cs {
+  --ap-amber-ink: #f3c978;
+}
+
+.ap-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin: 0;
+  padding: 0.4rem 0.9rem 0.4rem 0.8rem;
+  border: 1px solid color-mix(in srgb, var(--ap-amber) 50%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ap-amber) 12%, transparent);
+  color: var(--ap-amber-ink);
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.ap-status-dot {
+  position: relative;
+  flex-shrink: 0;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--ap-amber);
+}
+
+.ap-status-dot::after {
+  content: "";
+  position: absolute;
+  inset: -0.3rem;
+  border-radius: 50%;
+  background: var(--ap-amber);
+  opacity: 0.35;
+  animation: ap-pulse 2.4s ease-out infinite;
+}
+
+@keyframes ap-pulse {
+  from {
+    transform: scale(0.6);
+    opacity: 0.5;
+  }
+  to {
+    transform: scale(1.8);
+    opacity: 0;
+  }
+}
+
+.ap-title {
+  margin: 1.4rem 0 0;
+  font-family: var(--cs-display);
+  font-size: clamp(3.2rem, 9vw, 7.5rem);
+  font-weight: 650;
+  line-height: 0.92;
+  letter-spacing: -0.045em;
+  font-variation-settings: "wdth" 86;
+}
+
+.ap-subtitle {
+  max-width: 42rem;
+  margin: 1.4rem 0 0;
+  color: var(--cs-ink-2);
+  font-size: clamp(1.15rem, 2vw, 1.5rem);
+  line-height: 1.4;
+}
+
+.ap-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1.6rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ap-tags li {
+  padding: 0.45rem 0.95rem;
+  border: 1px solid var(--cs-line);
+  border-radius: 999px;
+  background: var(--cs-surface);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.ap-note {
+  max-width: 40rem;
+  margin: 1.8rem 0 0;
+  padding-left: 1rem;
+  border-left: 2px solid var(--ap-amber);
+  color: var(--cs-ink-2);
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+
+.ap-study.cs {
+  padding-top: clamp(1.5rem, 3vw, 2.5rem);
+}
+
+/* -------------------------------------------------------------------------
+   Shared bits
+   ------------------------------------------------------------------------- */
+
+.ap-gap {
+  margin-top: 1.5rem;
+}
+
+.ap-group {
+  margin-top: 1.5rem;
+}
+
+.ap-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ap-chips li {
+  padding: 0.5rem 0.95rem;
+  border: 1px solid var(--cs-line);
+  border-radius: 999px;
+  background: var(--cs-bg);
+  font-size: 0.92rem;
+}
+
+.ap-card {
+  margin-top: 1.1rem;
+  padding: 1.25rem 1.3rem 1.3rem;
+  border: 1px solid var(--cs-line);
+  border-radius: 1.1rem;
+  background: var(--cs-bg);
+  transition: border-color 0.3s, background 0.3s;
+  animation: cs-in 420ms var(--cs-ease) both;
+}
+
+.ap-card.is-alt {
+  border-color: var(--cs-accent);
+  background: color-mix(in srgb, var(--cs-accent) 7%, var(--cs-bg));
+}
+
+.ap-card h4 {
+  margin: 0 0 1rem;
+  font-family: var(--cs-display);
+  font-size: 1.45rem;
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.ap-card .ap-chips li {
+  background: var(--cs-surface);
+}
+
+/* -------------------------------------------------------------------------
+   01 Hub
+   ------------------------------------------------------------------------- */
+
+.ap-hub {
+  position: relative;
+  height: 15rem;
+  margin-top: 0.2rem;
+  border: 1px solid var(--cs-line);
+  border-radius: 1.1rem;
+  background:
+    radial-gradient(
+      50% 70% at 50% 50%,
+      color-mix(in srgb, var(--cs-accent) 9%, transparent),
+      transparent 75%
+    ),
+    var(--cs-bg);
+}
+
+.ap-hub-lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.ap-hub-lines line {
+  stroke: var(--cs-line);
+  stroke-width: 2;
+  transition: stroke 0.35s;
+}
+
+.ap-hub-lines line.is-on {
+  stroke: var(--cs-accent);
+  stroke-dasharray: 6 5;
+}
+
+.ap-hub-core {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  padding: 0.7rem 1.2rem;
+  border-radius: 999px;
+  background: var(--cs-ink);
+  color: var(--cs-bg);
+  font-family: var(--cs-display);
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  transform: translate(-50%, -50%);
+}
+
+.ap-node {
+  position: absolute;
+  padding: 0.55rem 1.05rem;
+  border: 1px solid var(--cs-line);
+  border-radius: 999px;
+  background: var(--cs-surface);
+  font-size: 0.92rem;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transform: translate(-50%, -50%);
+  transition: border-color 0.3s, background 0.3s, color 0.3s, box-shadow 0.3s;
+}
+
+.ap-node:hover {
+  border-color: var(--cs-ink-2);
+}
+
+.ap-node.is-on {
+  border-color: var(--cs-accent);
+  background: var(--cs-accent);
+  color: var(--cs-accent-ink);
+  box-shadow: 0 10px 24px -12px color-mix(in srgb, var(--cs-accent) 70%, transparent);
+}
+
+.ap-node:focus-visible {
+  outline: 2px solid var(--cs-accent);
+  outline-offset: 3px;
+}
+
+.ap-detail {
+  margin-top: 1.1rem;
+  animation: cs-in 420ms var(--cs-ease) both;
+}
+
+.ap-lead {
+  margin: 0 0 0.8rem;
+  font-family: var(--cs-display);
+  font-size: 1.35rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.ap-points {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.ap-points li::marker {
+  color: var(--cs-accent);
+}
+
+/* -------------------------------------------------------------------------
+   02 Problem
+   ------------------------------------------------------------------------- */
+
+.ap-flow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.ap-flow-arrow {
+  display: inline-grid;
+  place-items: center;
+  color: var(--cs-ink-2);
+}
+
+.ap-flow-apex {
+  padding: 0.55rem 1.05rem;
+  border-radius: 999px;
+  background: var(--cs-ink);
+  color: var(--cs-bg);
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.ap-challenges {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ap-challenge {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--cs-line);
+  border-radius: 0.9rem;
+  background: var(--cs-bg);
+  font-size: 0.95rem;
+  line-height: 1.4;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.3s, background 0.3s, color 0.3s, transform 0.3s var(--cs-ease);
+}
+
+.ap-challenge:hover {
+  border-color: var(--cs-ink-2);
+  transform: translateX(3px);
+}
+
+.ap-challenge.is-on {
+  border-color: var(--cs-ink);
+  background: var(--cs-ink);
+  color: var(--cs-bg);
+}
+
+.ap-challenge:focus-visible {
+  outline: 2px solid var(--cs-accent);
+  outline-offset: 3px;
+}
+
+.ap-challenge-n {
+  flex-shrink: 0;
+  padding-top: 0.1rem;
+  font-family: var(--cs-display);
+  font-size: 0.82rem;
+  opacity: 0.6;
+}
+
+.ap-response {
+  margin-top: 1rem;
+  padding: 0.2rem 0 0.2rem 1.1rem;
+  border-left: 2px solid var(--cs-accent);
+  animation: cs-in 420ms var(--cs-ease) both;
+}
+
+.ap-response .cs-label {
+  margin-bottom: 0.3rem;
+}
+
+.ap-response p {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.55;
+}
+
+/* -------------------------------------------------------------------------
+   04 AI capabilities
+   ------------------------------------------------------------------------- */
+
+.ap-caps {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+.ap-cap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0.95rem 1.05rem;
+  border: 1px solid var(--cs-line);
+  border-radius: 1rem;
+  background: var(--cs-bg);
+  font-weight: 600;
+  line-height: 1.25;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.3s, background 0.3s, color 0.3s, transform 0.3s var(--cs-ease);
+}
+
+.ap-cap small {
+  color: var(--cs-accent);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: color 0.3s;
+}
+
+.ap-cap:hover {
+  border-color: var(--cs-ink-2);
+  transform: translateY(-2px);
+}
+
+.ap-cap.is-on {
+  border-color: var(--cs-ink);
+  background: var(--cs-ink);
+  color: var(--cs-bg);
+}
+
+.ap-cap.is-on small {
+  color: inherit;
+  opacity: 0.7;
+}
+
+.ap-cap:focus-visible {
+  outline: 2px solid var(--cs-accent);
+  outline-offset: 3px;
+}
+
+.ap-path {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ap-path li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.45rem 0.95rem 0.45rem 0.5rem;
+  border: 1px solid var(--cs-line);
+  border-radius: 999px;
+  background: var(--cs-bg);
+  font-size: 0.92rem;
+}
+
+.ap-path span {
+  display: grid;
+  place-items: center;
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: 50%;
+  background: var(--cs-accent);
+  color: var(--cs-accent-ink);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* -------------------------------------------------------------------------
+   05 Trade-offs
+   ------------------------------------------------------------------------- */
+
+.ap-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+.ap-tab {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--cs-line);
+  border-radius: 1rem;
+  background: var(--cs-bg);
+  font-size: 0.92rem;
+  font-weight: 600;
+  line-height: 1.3;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.3s, background 0.3s, color 0.3s, transform 0.3s var(--cs-ease);
+}
+
+.ap-tab span {
+  flex-shrink: 0;
+  font-family: var(--cs-display);
+  font-size: 0.82rem;
+  opacity: 0.6;
+}
+
+.ap-tab:hover {
+  border-color: var(--cs-ink-2);
+  transform: translateY(-2px);
+}
+
+.ap-tab.is-on {
+  border-color: var(--cs-ink);
+  background: var(--cs-ink);
+  color: var(--cs-bg);
+}
+
+.ap-tab:focus-visible {
+  outline: 2px solid var(--cs-accent);
+  outline-offset: 3px;
+}
+
+.ap-versus {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 1.1rem;
+  animation: cs-in 420ms var(--cs-ease) both;
+}
+
+.ap-option {
+  display: grid;
+  gap: 0.3rem;
+  align-content: end;
+  min-height: 5.5rem;
+  padding: 1.1rem 1.2rem;
+  border: 1px solid var(--cs-line);
+  border-radius: 1rem;
+  background: var(--cs-bg);
+}
+
+.ap-option strong {
+  font-family: var(--cs-display);
+  font-size: 1.15rem;
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.ap-option small {
+  color: var(--cs-accent);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.ap-option.is-chosen {
+  border-color: var(--cs-accent);
+  background: color-mix(in srgb, var(--cs-accent) 8%, var(--cs-bg));
+}
+
+/* -------------------------------------------------------------------------
+   06 Direction orbs
+   ------------------------------------------------------------------------- */
+
+.ap-orbs {
+  margin-top: 1.2rem;
+  padding: 0.75rem;
+  border: 1px solid var(--cs-line);
+  border-radius: 1.1rem;
+  background: var(--cs-bg);
+}
+
+.ap-orbs-svg {
+  display: block;
+  width: 100%;
+  max-width: 34rem;
+  height: auto;
+  margin-inline: auto;
+}
+
+.ap-orb {
+  transition: transform 0.9s var(--cs-ease), opacity 0.9s var(--cs-ease);
+}
+
+.ap-orb circle {
+  stroke-width: 2;
+}
+
+.ap-orb--people circle {
+  fill: var(--cs-accent);
+  fill-opacity: 0.2;
+  stroke: var(--cs-accent);
+}
+
+.ap-orb--equipment circle {
+  fill: #2fb59a;
+  fill-opacity: 0.2;
+  stroke: #2fb59a;
+}
+
+.ap-orb--data circle {
+  fill: var(--cs-ink-2);
+  fill-opacity: 0.18;
+  stroke: var(--cs-ink-2);
+}
+
+.ap-orb text,
+.ap-orb-core {
+  fill: var(--cs-ink);
+  font-family: var(--cs-body);
+  font-size: 13px;
+  font-weight: 600;
+  text-anchor: middle;
+}
+
+.ap-orb-core {
+  font-family: var(--cs-display);
+  font-size: 15px;
+  transition: opacity 0.6s ease 0.3s;
+}
+
+.ap-orbs.is-tracking .ap-orb--people {
+  opacity: 0.12;
+  transform: translate(-70px, 0);
+}
+
+.ap-orbs.is-tracking .ap-orb--data {
+  opacity: 0.12;
+  transform: translate(0, 60px);
+}
+
+.ap-orbs.is-tracking .ap-orb--equipment {
+  transform: translate(-40px, 15px);
+}
+
+.ap-orbs.is-tracking .ap-orb-core {
+  opacity: 0;
+  transition-delay: 0s;
+}
+
+/* -------------------------------------------------------------------------
+   Side card
+   ------------------------------------------------------------------------- */
+
+.ap-side {
+  margin-top: 1.75rem;
+}
+
+.ap-side-btn {
+  display: grid;
+  grid-template-columns: 3rem 1fr;
+  grid-template-areas:
+    "icon text"
+    "cta cta";
+  gap: 0.9rem 1rem;
+  align-items: center;
+  width: 100%;
+  padding: 1rem;
+  border: 1px solid var(--cs-line);
+  border-radius: 1.1rem;
+  background: var(--cs-surface);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.3s, transform 0.3s var(--cs-ease);
+}
+
+.ap-side-btn:hover {
+  border-color: var(--cs-ink-2);
+  transform: translateY(-2px);
+}
+
+.ap-side-btn:focus-visible {
+  outline: 2px solid var(--cs-accent);
+  outline-offset: 3px;
+}
+
+.ap-side-icon {
+  display: grid;
+  grid-area: icon;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.85rem;
+  background: color-mix(in srgb, var(--cs-accent) 14%, var(--cs-surface));
+  color: var(--cs-accent);
+}
+
+.ap-side-text {
+  display: grid;
+  grid-area: text;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.ap-side-eyebrow {
+  color: var(--cs-accent);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.ap-side-title {
+  font-family: var(--cs-display);
+  font-size: 1.2rem;
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.ap-side-sub {
+  color: var(--cs-ink-2);
+  font-size: 0.88rem;
+  line-height: 1.35;
+}
+
+.ap-side-cta {
+  display: flex;
+  grid-area: cta;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--cs-line);
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.ap-side-cta svg {
+  transition: transform 0.3s var(--cs-ease);
+}
+
+.ap-side-btn:hover .ap-side-cta svg {
+  transform: translateY(2px);
+}
+
+/* -------------------------------------------------------------------------
+   Responsive
+   ------------------------------------------------------------------------- */
+
+@media (max-width: 62rem) {
+  .ap-side {
+    margin-top: 1rem;
+  }
+
+  .ap-side-btn {
+    grid-template-columns: 2.75rem 1fr auto;
+    grid-template-areas: "icon text cta";
+    gap: 0.9rem;
+    padding: 0.6rem 1rem 0.6rem 0.6rem;
+    border-radius: 999px;
+  }
+
+  .ap-side-icon {
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+  }
+
+  .ap-side-title {
+    font-size: 1.05rem;
+  }
+
+  .ap-side-sub {
+    font-size: 0.8rem;
+  }
+
+  .ap-side-cta {
+    padding-top: 0;
+    border-top: 0;
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 40rem) {
+  .ap-hub {
+    height: 14rem;
+  }
+
+  .ap-caps,
+  .ap-tabs,
+  .ap-versus {
+    grid-template-columns: 1fr;
+  }
+
+  .ap-side-sub {
+    display: none;
+  }
+
+  .ap-side-cta {
+    gap: 0;
+    font-size: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ap-card,
+  .ap-detail,
+  .ap-response,
+  .ap-versus {
+    animation: none;
+  }
+
+  .ap-status-dot::after {
+    animation: none;
+    opacity: 0.35;
+  }
+
+  .ap-orb,
+  .ap-orb-core {
+    transition-duration: 1ms;
+    transition-delay: 0s;
+  }
+}

@@ -1,0 +1,976 @@
+﻿/* ==========================================================================
+   Apex walkthrough: an illustrated app window on a dark stage.
+   The app UI keeps its own light palette so it reads as a product screen in
+   both site themes. The stage reads the site's band tokens (with fallbacks).
+   ========================================================================== */
+
+.aw {
+  --aw-bg: var(--band, #0f2420);
+  --aw-ink: var(--band-ink, #eef3ef);
+  --aw-ink-2: var(--band-ink-2, #a9bab1);
+  --aw-line: var(--band-line, rgba(238, 243, 239, 0.2));
+  --aw-display: var(--display, "Helvetica Neue", Arial, sans-serif);
+  --aw-body: var(--body, "Helvetica Neue", Arial, sans-serif);
+  --aw-ease: cubic-bezier(0.22, 0.8, 0.2, 1);
+
+  /* app palette */
+  --app-bg: #f6f8f7;
+  --app-surface: #ffffff;
+  --app-ink: #0f1e1a;
+  --app-ink-2: #55655d;
+  --app-line: #e0e7e3;
+  --app-accent: #3347e8;
+  --app-accent-soft: #e8ebfd;
+
+  padding: clamp(4.5rem, 10vw, 8rem) 0;
+  background: var(--aw-bg);
+  color: var(--aw-ink);
+  font-family: var(--aw-body);
+}
+
+.aw *,
+.aw *::before,
+.aw *::after {
+  box-sizing: border-box;
+}
+
+.aw :where(button, input, select) {
+  font: inherit;
+  color: inherit;
+}
+
+.aw-inner {
+  width: 100%;
+  max-width: calc(var(--max, 78rem) + var(--gutter, 4.5rem) * 2);
+  margin-inline: auto;
+  padding-inline: var(--gutter, clamp(1.25rem, 5vw, 4.5rem));
+}
+
+/* -------------------------------------------------------------------------
+   Header
+   ------------------------------------------------------------------------- */
+
+.aw-eyebrow {
+  margin: 0 0 0.7rem;
+  color: var(--aw-ink-2);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.aw-heading {
+  margin: 0;
+  font-family: var(--aw-display);
+  font-size: clamp(2.5rem, 5.6vw, 4.75rem);
+  font-weight: 600;
+  line-height: 0.98;
+  letter-spacing: -0.035em;
+  font-variation-settings: "wdth" 90;
+}
+
+.aw-intro {
+  max-width: 36rem;
+  margin: 1.1rem 0 0;
+  color: var(--aw-ink-2);
+  font-size: 1.05rem;
+  line-height: 1.6;
+}
+
+.aw-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 19rem;
+  gap: clamp(1.25rem, 3vw, 2rem);
+  align-items: start;
+  margin-top: clamp(2rem, 5vw, 3rem);
+}
+
+/* -------------------------------------------------------------------------
+   App window
+   ------------------------------------------------------------------------- */
+
+.aw-window {
+  position: relative;
+  overflow: hidden;
+  min-height: 34rem;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 1.25rem;
+  background: var(--app-bg);
+  color: var(--app-ink);
+  box-shadow: 0 40px 80px -40px rgba(0, 0, 0, 0.8);
+}
+
+.aw-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid var(--app-line);
+  background: var(--app-surface);
+}
+
+.aw-dots {
+  flex-shrink: 0;
+  width: 0.6rem;
+  height: 0.6rem;
+  margin-right: 1.9rem;
+  border-radius: 50%;
+  background: #d3dad6;
+  box-shadow: 0.95rem 0 #d3dad6, 1.9rem 0 #d3dad6;
+}
+
+.aw-brand {
+  font-family: var(--aw-display);
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.aw-roles {
+  display: inline-flex;
+  margin-left: auto;
+  padding: 0.2rem;
+  border: 1px solid #dbe3df;
+  border-radius: 999px;
+  background: #f1f4f2;
+}
+
+.aw-roles button {
+  padding: 0.4rem 0.9rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--app-ink-2);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.25s, color 0.25s;
+}
+
+.aw-roles button.is-on {
+  background: var(--app-ink);
+  color: #ffffff;
+}
+
+.aw-sample {
+  flex-shrink: 0;
+  padding: 0.25rem 0.6rem;
+  border: 1px dashed #c3cec8;
+  border-radius: 999px;
+  color: var(--app-ink-2);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.aw-body {
+  display: grid;
+  grid-template-columns: 11rem minmax(0, 1fr);
+  min-height: 30rem;
+}
+
+.aw-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 1rem 0.75rem;
+  border-right: 1px solid var(--app-line);
+  background: var(--app-surface);
+}
+
+.aw-nav button {
+  padding: 0.6rem 0.8rem;
+  border: 0;
+  border-radius: 0.6rem;
+  background: transparent;
+  color: var(--app-ink-2);
+  font-size: 0.92rem;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.25s, color 0.25s;
+}
+
+.aw-nav button:hover {
+  background: var(--app-bg);
+  color: var(--app-ink);
+}
+
+.aw-nav button.is-on {
+  background: var(--app-accent-soft);
+  color: #2336b8;
+  font-weight: 600;
+}
+
+.aw-user {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: auto 0 0;
+  padding: 0.75rem 0.5rem 0;
+  color: var(--app-ink-2);
+  font-size: 0.85rem;
+}
+
+.aw-avatar {
+  display: inline-grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 50%;
+  background: #dde5e1;
+  color: var(--app-ink);
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.aw-main {
+  min-width: 0;
+  padding: 1.25rem;
+  animation: aw-in 0.4s var(--aw-ease) both;
+}
+
+@keyframes aw-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+.aw-stack {
+  display: grid;
+  gap: 1rem;
+}
+
+.aw-hint {
+  margin: 0;
+  padding: 1.25rem;
+  border: 1px dashed #c9d4ce;
+  border-radius: 1rem;
+  color: var(--app-ink-2);
+  font-size: 0.92rem;
+}
+
+.aw-fine {
+  margin: 0.8rem 0 0;
+  color: var(--app-ink-2);
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+.aw-meta {
+  margin: 0;
+  color: var(--app-ink-2);
+  font-size: 0.85rem;
+}
+
+/* -------------------------------------------------------------------------
+   Shared UI
+   ------------------------------------------------------------------------- */
+
+.aw-card {
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--app-line);
+  border-radius: 1rem;
+  background: var(--app-surface);
+}
+
+.aw-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.6rem;
+}
+
+.aw-card-head h4 {
+  margin: 0;
+  font-family: var(--aw-display);
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.aw-card-head h4 small {
+  color: var(--app-ink-2);
+  font-family: var(--aw-body);
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.aw-chip {
+  padding: 0.2rem 0.55rem;
+  border: 1px solid #d3dbd7;
+  border-radius: 999px;
+  color: var(--app-ink-2);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.aw-chip.is-new {
+  border-color: var(--app-accent);
+  background: var(--app-accent-soft);
+  color: #2336b8;
+}
+
+.aw-btn {
+  padding: 0.6rem 1rem;
+  border: 1px solid #cbd6d0;
+  border-radius: 0.7rem;
+  background: var(--app-surface);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.25s, border-color 0.25s, color 0.25s, transform 0.25s var(--aw-ease);
+}
+
+.aw-btn:hover:not(:disabled) {
+  border-color: var(--app-ink);
+  transform: translateY(-1px);
+}
+
+.aw-btn.is-primary {
+  border-color: var(--app-accent);
+  background: var(--app-accent);
+  color: #ffffff;
+}
+
+.aw-btn.is-primary:hover:not(:disabled) {
+  border-color: #2336b8;
+  background: #2336b8;
+}
+
+.aw-btn:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.aw :where(button, input, select):focus-visible {
+  outline: 2px solid var(--app-accent);
+  outline-offset: 2px;
+}
+
+.aw-badge {
+  flex-shrink: 0;
+  padding: 0.22rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.aw-badge.is-operational {
+  background: #e3f5ea;
+  color: #17753f;
+}
+
+.aw-badge.is-attention {
+  background: #fdf1d6;
+  color: #946012;
+}
+
+.aw-badge.is-scheduled {
+  background: var(--app-accent-soft);
+  color: #2336b8;
+}
+
+.aw-badge.is-maintenance {
+  background: #efe6fb;
+  color: #6b34b5;
+}
+
+.aw-progress {
+  display: block;
+  height: 5px;
+  overflow: hidden;
+  border-radius: 5px;
+  background: #e3e9e6;
+}
+
+.aw-progress span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 5px;
+  background: var(--app-accent);
+  transform-origin: left;
+  transition: transform 0.5s var(--aw-ease);
+}
+
+/* -------------------------------------------------------------------------
+   Overview
+   ------------------------------------------------------------------------- */
+
+.aw-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.aw-stats li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--app-line);
+  border-radius: 1rem;
+  background: var(--app-surface);
+}
+
+.aw-stats strong {
+  font-family: var(--aw-display);
+  font-size: 1.9rem;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+.aw-stats span {
+  color: var(--app-ink-2);
+  font-size: 0.82rem;
+}
+
+.aw-stats .is-operational strong {
+  color: #17753f;
+}
+
+.aw-stats .is-attention strong {
+  color: #946012;
+}
+
+.aw-stats .is-open strong {
+  color: #2336b8;
+}
+
+.aw-two {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: 1rem;
+}
+
+.aw-summary-text {
+  min-height: 5.6rem;
+  margin: 0 0 0.9rem;
+  color: var(--app-ink);
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.aw-caret {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin-left: 2px;
+  background: var(--app-accent);
+  vertical-align: text-bottom;
+  animation: aw-blink 0.9s steps(1) infinite;
+}
+
+@keyframes aw-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.aw-feed {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.aw-feed li {
+  position: relative;
+  padding-left: 1rem;
+  font-size: 0.88rem;
+  line-height: 1.4;
+  animation: aw-in 0.4s var(--aw-ease) both;
+}
+
+.aw-feed li::before {
+  content: "";
+  position: absolute;
+  top: 0.5em;
+  left: 0;
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: var(--app-accent);
+}
+
+/* -------------------------------------------------------------------------
+   Equipment
+   ------------------------------------------------------------------------- */
+
+.aw-list {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.aw-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--app-line);
+  border-radius: 0.9rem;
+  background: var(--app-surface);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.25s, transform 0.25s var(--aw-ease);
+}
+
+.aw-row:hover {
+  border-color: #b7c4bd;
+  transform: translateY(-1px);
+}
+
+.aw-row.is-selected {
+  border-color: var(--app-accent);
+  box-shadow: 0 0 0 3px var(--app-accent-soft);
+}
+
+.aw-row-main {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  min-width: 0;
+}
+
+.aw-row-main small {
+  color: var(--app-ink-2);
+  font-size: 0.8rem;
+}
+
+.aw-detail {
+  animation: aw-in 0.35s var(--aw-ease) both;
+}
+
+.aw-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 0 0 1rem;
+}
+
+.aw-facts dt {
+  color: var(--app-ink-2);
+  font-size: 0.78rem;
+}
+
+.aw-facts dd {
+  margin: 0.1rem 0 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.aw-form {
+  display: grid;
+  gap: 0.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--app-line);
+}
+
+.aw-form label {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.aw-form label span {
+  color: var(--app-ink-2);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.aw-form input,
+.aw-form select {
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid #cbd6d0;
+  border-radius: 0.6rem;
+  background: var(--app-surface);
+  font-size: 0.9rem;
+}
+
+.aw-form-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.aw-form .aw-btn {
+  justify-self: start;
+}
+
+/* -------------------------------------------------------------------------
+   Tasks
+   ------------------------------------------------------------------------- */
+
+.aw-board {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  align-items: start;
+}
+
+.aw-column {
+  padding: 0.75rem;
+  border: 1px solid var(--app-line);
+  border-radius: 1rem;
+  background: #eef2f0;
+}
+
+.aw-column h4 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 0 0.6rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.aw-column h4 span {
+  padding: 0.05rem 0.5rem;
+  border-radius: 999px;
+  background: #dbe3df;
+  color: var(--app-ink-2);
+  font-size: 0.75rem;
+}
+
+.aw-column ul {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.aw-task {
+  display: grid;
+  gap: 0.4rem;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid var(--app-line);
+  border-radius: 0.8rem;
+  background: var(--app-surface);
+  animation: aw-in 0.4s var(--aw-ease) both;
+}
+
+.aw-task strong {
+  font-size: 0.88rem;
+  line-height: 1.3;
+}
+
+.aw-task small {
+  color: var(--app-ink-2);
+  font-size: 0.76rem;
+}
+
+.aw-task-foot {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--app-ink-2);
+  font-size: 0.78rem;
+}
+
+.aw-task-foot em {
+  margin-left: auto;
+  color: var(--app-ink);
+  font-style: normal;
+  font-weight: 600;
+}
+
+.aw-empty {
+  padding: 0.6rem;
+  color: #8a9a92;
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.aw-mine {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.aw-mytask {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.aw-mytask .aw-card-head {
+  margin-bottom: 0;
+}
+
+.aw-slider {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.aw-slider span {
+  display: flex;
+  justify-content: space-between;
+  color: var(--app-ink-2);
+  font-size: 0.82rem;
+}
+
+.aw-slider strong {
+  color: var(--app-ink);
+}
+
+.aw-slider input {
+  width: 100%;
+  accent-color: var(--app-accent);
+  cursor: pointer;
+}
+
+.aw-actions {
+  display: flex;
+  align-items: center;
+  min-height: 2.4rem;
+}
+
+.aw-done {
+  color: #17753f;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.aw-toast {
+  position: absolute;
+  bottom: 1rem;
+  left: 50%;
+  margin: 0;
+  padding: 0.55rem 1rem;
+  border-radius: 999px;
+  background: var(--app-ink);
+  color: #ffffff;
+  font-size: 0.85rem;
+  opacity: 0;
+  transform: translate(-50%, 0.75rem);
+  transition: opacity 0.3s, transform 0.3s var(--aw-ease);
+  pointer-events: none;
+}
+
+.aw-toast.is-on {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* -------------------------------------------------------------------------
+   Guided tour rail
+   ------------------------------------------------------------------------- */
+
+.aw-rail h3 {
+  margin: 0 0 1rem;
+  font-family: var(--aw-display);
+  font-size: 1.4rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.aw-steps {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.aw-steps li {
+  display: grid;
+  grid-template-columns: 1.9rem 1fr;
+  gap: 0.8rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--aw-line);
+  border-radius: 1rem;
+  opacity: 0.72;
+  transition: opacity 0.3s, border-color 0.3s, background 0.3s;
+}
+
+.aw-steps li.is-next {
+  border-color: rgba(238, 243, 239, 0.55);
+  background: rgba(238, 243, 239, 0.06);
+  opacity: 1;
+}
+
+.aw-steps li.is-done {
+  opacity: 0.9;
+}
+
+.aw-step-n {
+  display: grid;
+  place-items: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  border: 1px solid var(--aw-line);
+  border-radius: 50%;
+  font-size: 0.82rem;
+  font-weight: 600;
+  transition: background 0.3s, color 0.3s, border-color 0.3s;
+}
+
+.aw-steps li.is-next .aw-step-n {
+  border-color: var(--aw-ink);
+}
+
+.aw-steps li.is-done .aw-step-n {
+  border-color: #5fe08a;
+  background: #5fe08a;
+  color: #08120f;
+}
+
+.aw-steps strong {
+  font-size: 0.98rem;
+}
+
+.aw-steps p {
+  margin: 0.2rem 0 0;
+  color: var(--aw-ink-2);
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+.aw-link {
+  margin-top: 0.5rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--aw-ink);
+  font-size: 0.86rem;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.aw-link:focus-visible,
+.aw-reset:focus-visible {
+  outline: 2px solid var(--aw-ink);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.aw-reset {
+  margin-top: 1rem;
+  padding: 0.55rem 1rem;
+  border: 1px solid var(--aw-line);
+  border-radius: 999px;
+  background: transparent;
+  font-size: 0.86rem;
+  cursor: pointer;
+  transition: background 0.25s, color 0.25s;
+}
+
+.aw-reset:hover {
+  background: var(--aw-ink);
+  color: var(--aw-bg);
+}
+
+/* -------------------------------------------------------------------------
+   Responsive
+   ------------------------------------------------------------------------- */
+
+@media (max-width: 62rem) {
+  .aw-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .aw-rail {
+    order: -1;
+  }
+
+  .aw-steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 40rem) {
+  .aw-steps {
+    grid-template-columns: 1fr;
+  }
+
+  .aw-steps li:not(.is-next) p,
+  .aw-steps li:not(.is-next) .aw-link {
+    display: none;
+  }
+
+  .aw-steps li:not(.is-next) {
+    padding-block: 0.65rem;
+  }
+
+  .aw-dots,
+  .aw-sample {
+    display: none;
+  }
+
+  .aw-body {
+    grid-template-columns: 1fr;
+  }
+
+  .aw-nav {
+    flex-direction: row;
+    gap: 0.25rem;
+    padding: 0.6rem 0.75rem;
+    border-right: 0;
+    border-bottom: 1px solid var(--app-line);
+    overflow-x: auto;
+  }
+
+  .aw-nav button {
+    white-space: nowrap;
+  }
+
+  .aw-user {
+    display: none;
+  }
+
+  .aw-main {
+    padding: 1rem;
+  }
+
+  .aw-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .aw-two,
+  .aw-board,
+  .aw-facts,
+  .aw-form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aw-main,
+  .aw-feed li,
+  .aw-task,
+  .aw-detail {
+    animation: none;
+  }
+
+  .aw-caret {
+    animation: none;
+  }
+
+  .aw-progress span,
+  .aw-toast {
+    transition-duration: 1ms;
+  }
+}

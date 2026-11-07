@@ -78,4 +78,23 @@ export const projects: Project[] = [
     /** Narrative lives in the interactive AuxiliumCaseStudy component */
     sections: [],
   },
+  {
+    id: "apex",
+    title: "Apex by Astra",
+    cat: "AI / Operations software",
+    featured: true,
+    blurb:
+      "AI-powered equipment maintenance and workforce management for an oilfield drilling services company.",
+    sum: "AI-powered equipment maintenance and workforce management for an oilfield drilling services company.",
+    hoverRole: "Product / Operations software",
+    hoverExtraLabel: "Status",
+    hoverExtra: "In progress",
+    meta: [
+      ["My role", "Product development and UI/UX"],
+      ["Focus", "Enterprise software, AI integration"],
+      ["Status", "In progress"],
+    ],
+    /** Narrative lives in the interactive ApexCaseStudy component */
+    sections: [],
+  },
 ];
